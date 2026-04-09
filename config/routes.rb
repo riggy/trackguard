@@ -1,3 +1,3 @@
 Rails.application.routes.draw do
-  post "/page_views", to: "page_views#create"
+  post "/page_views", to: "trackguard/page_views#create"
 end
