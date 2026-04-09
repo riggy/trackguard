@@ -1,4 +1,6 @@
 Gemfile.lock
+.claude/
+CLAUDE.md
 spec/dummy/db/*.sqlite3
 spec/dummy/tmp/
 tmp/
