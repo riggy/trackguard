@@ -2,6 +2,12 @@ module Trackguard
   module PageTracker
     extend ActiveSupport::Concern
 
+    module ClassMethods
+      def track_page_views(**options)
+        after_action :track_page_view, **options
+      end
+    end
+
     private
 
     def track_page_view
