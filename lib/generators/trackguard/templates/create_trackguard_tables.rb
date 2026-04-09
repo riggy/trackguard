@@ -1,6 +1,6 @@
 class CreateTrackguardTables < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
   def change
-    create_table :visitors do |t|
+    create_table :trackguard_visitors do |t|
       t.string   :ip
       t.string   :user_agent
       t.datetime :first_seen_at, null: false
@@ -11,21 +11,21 @@ class CreateTrackguardTables < ActiveRecord::Migration[<%= ActiveRecord::Migrati
       t.timestamps
     end
 
-    add_index :visitors, :ip, unique: true
+    add_index :trackguard_visitors, :ip, unique: true
 
-    create_table :page_views do |t|
+    create_table :trackguard_page_views do |t|
       t.string    :path,       null: false
       t.string    :user_agent
       t.string    :referer
       t.string    :session_id
       t.string    :trace_id
       t.string    :source
-      t.references :visitor,   null: false, foreign_key: true
+      t.references :visitor,   null: false, foreign_key: { to_table: :trackguard_visitors }
       t.datetime  :created_at, null: false
     end
 
-    add_index :page_views, :path
-    add_index :page_views, :created_at
-    add_index :page_views, :source
+    add_index :trackguard_page_views, :path
+    add_index :trackguard_page_views, :created_at
+    add_index :trackguard_page_views, :source
   end
 end

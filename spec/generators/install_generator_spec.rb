@@ -37,7 +37,7 @@ RSpec.describe Trackguard::InstallGenerator do
   it "creates the visitors table with the expected columns" do
     run_generator
     content = File.read(generated_migration)
-    expect(content).to include("create_table :visitors")
+    expect(content).to include("create_table :trackguard_visitors")
     expect(content).to include(":first_seen_at")
     expect(content).to include(":last_seen_at")
     expect(content).to include(":flagged_at")
@@ -46,13 +46,13 @@ RSpec.describe Trackguard::InstallGenerator do
 
   it "adds a unique index on visitors.ip" do
     run_generator
-    expect(File.read(generated_migration)).to include("add_index :visitors, :ip, unique: true")
+    expect(File.read(generated_migration)).to include("add_index :trackguard_visitors, :ip, unique: true")
   end
 
   it "creates the page_views table with the expected columns" do
     run_generator
     content = File.read(generated_migration)
-    expect(content).to include("create_table :page_views")
+    expect(content).to include("create_table :trackguard_page_views")
     expect(content).to include(":path")
     expect(content).to include(":session_id")
     expect(content).to include(":trace_id")

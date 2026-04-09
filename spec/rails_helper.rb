@@ -7,7 +7,7 @@ require 'rspec/rails'
 # Set up the test database schema
 ActiveRecord::Schema.verbose = false
 ActiveRecord::Schema.define do
-  create_table :visitors, force: :cascade do |t|
+  create_table :trackguard_visitors, force: :cascade do |t|
     t.string   :ip
     t.string   :user_agent
     t.datetime :first_seen_at, null: false
@@ -18,9 +18,9 @@ ActiveRecord::Schema.define do
     t.timestamps
   end
 
-  add_index :visitors, :ip, unique: true
+  add_index :trackguard_visitors, :ip, unique: true
 
-  create_table :page_views, force: :cascade do |t|
+  create_table :trackguard_page_views, force: :cascade do |t|
     t.string   :path,       null: false
     t.string   :user_agent
     t.string   :referer
@@ -31,10 +31,10 @@ ActiveRecord::Schema.define do
     t.datetime :created_at, null: false
   end
 
-  add_index :page_views, :path
-  add_index :page_views, :created_at
-  add_index :page_views, :source
-  add_index :page_views, :visitor_id
+  add_index :trackguard_page_views, :path
+  add_index :trackguard_page_views, :created_at
+  add_index :trackguard_page_views, :source
+  add_index :trackguard_page_views, :visitor_id
 end
 
 RSpec.configure do |config|

@@ -1,6 +1,6 @@
 module Trackguard
   class PageView < ApplicationRecord
-    self.table_name = "page_views"
+    self.table_name = "trackguard_page_views"
 
     belongs_to :visitor, class_name: "Trackguard::Visitor"
 
