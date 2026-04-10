@@ -1,16 +1,16 @@
 require "rails_helper"
 
-RSpec.describe "GET /dashboard", type: :request do
+RSpec.describe "GET /admin/dashboard", type: :request do
   after { Trackguard.instance_variable_set(:@authenticate_admin_with, nil) }
 
   it "returns 200 with the default no-op auth" do
-    get "/dashboard"
+    get "/admin/dashboard"
     expect(response).to have_http_status(:ok)
   end
 
   it "runs the configured authenticate_admin_with proc" do
     Trackguard.authenticate_admin_with = proc { head :unauthorized }
-    get "/dashboard"
+    get "/admin/dashboard"
     expect(response).to have_http_status(:unauthorized)
   end
 
@@ -19,7 +19,7 @@ RSpec.describe "GET /dashboard", type: :request do
     let!(:older)    { create(:page_view, path: "/about", created_at: 31.days.ago) }
     let!(:sourced)  { create(:page_view, :with_source,   created_at: Time.current) }
 
-    before { get "/dashboard" }
+    before { get "/admin/dashboard" }
 
     it "renders the page" do
       expect(response).to have_http_status(:ok)

@@ -1,5 +1,7 @@
 Trackguard::Engine.routes.draw do
   post "/page_views", to: "page_views#create"
 
-  resource :dashboard, only: :show
+  scope :admin do
+    resource :dashboard, only: :show
+  end
 end
