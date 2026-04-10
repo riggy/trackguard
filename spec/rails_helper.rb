@@ -37,6 +37,9 @@ ActiveRecord::Schema.define do
   add_index :trackguard_page_views, :visitor_id
 end
 
+FactoryBot.definition_file_paths = [ File.expand_path("factories", __dir__) ]
+FactoryBot.find_definitions
+
 RSpec.configure do |config|
   config.use_transactional_fixtures = true
 
