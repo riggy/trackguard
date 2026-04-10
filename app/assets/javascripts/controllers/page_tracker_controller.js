@@ -30,7 +30,7 @@ export default class extends Controller {
     const token = document.querySelector('meta[name="csrf-token"]')?.content
     const traceId = document.querySelector('meta[name="trace-id"]')?.content
     const ref = new URLSearchParams(window.location.search).get("ref")
-    fetch("/page_views", {
+    fetch("/trackguard/page_views", {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-CSRF-Token": token || "" },
       body: JSON.stringify({ path, trace_id: traceId, ref, initial })
