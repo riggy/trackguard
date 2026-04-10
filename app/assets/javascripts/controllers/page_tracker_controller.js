@@ -1,6 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
+  static values = { url: { type: String, default: "" } }
   connect() {
     this.lastTracked = null
     this.boundLoad = () => this.trackCurrent()
@@ -29,8 +30,9 @@ export default class extends Controller {
   track(path, initial = false) {
     const token = document.querySelector('meta[name="csrf-token"]')?.content
     const traceId = document.querySelector('meta[name="trace-id"]')?.content
+    const url = this.urlValue || document.querySelector('meta[name="trackguard-url"]')?.content
     const ref = new URLSearchParams(window.location.search).get("ref")
-    fetch("/trackguard/page_views", {
+    fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-CSRF-Token": token || "" },
       body: JSON.stringify({ path, trace_id: traceId, ref, initial })

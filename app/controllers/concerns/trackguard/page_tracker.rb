@@ -2,6 +2,10 @@ module Trackguard
   module PageTracker
     extend ActiveSupport::Concern
 
+    included do
+      before_action :set_trace_id
+    end
+
     module ClassMethods
       def track_page_views(**options)
         after_action :track_page_view, **options
@@ -9,6 +13,10 @@ module Trackguard
     end
 
     private
+
+    def set_trace_id
+      @trace_id = SecureRandom.uuid
+    end
 
     def track_page_view
       return unless request.get? || request.head?
