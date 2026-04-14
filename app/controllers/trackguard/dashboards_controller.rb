@@ -1,3 +1,4 @@
+
 module Trackguard
   class DashboardsController < BaseController
     def show

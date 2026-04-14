@@ -1,174 +1,174 @@
 <% content_for :title, "Trackguard" %>
 
-<div class="mb-7">
-  <h1 class="text-xl font-bold tracking-[-0.02em]">Trackguard</h1>
+<div class="tg-page-header">
+  <h1 class="tg-page-title">Dashboard</h1>
 </div>
 
 <%# Summary cards %>
-<div class="grid grid-cols-3 gap-4 mb-8">
-  <div class="rounded-lg border border-border bg-card p-5">
-    <p class="text-subtle text-xs uppercase tracking-wider mb-1">Today</p>
-    <p class="text-2xl font-bold text-surface"><%= @total_today %></p>
+<div class="tg-stats">
+  <div class="tg-stat">
+    <p class="tg-stat__label">Today</p>
+    <p class="tg-stat__value"><%= @total_today %></p>
   </div>
-  <div class="rounded-lg border border-border bg-card p-5">
-    <p class="text-subtle text-xs uppercase tracking-wider mb-1">This Week</p>
-    <p class="text-2xl font-bold text-surface"><%= @total_week %></p>
+  <div class="tg-stat">
+    <p class="tg-stat__label">This Week</p>
+    <p class="tg-stat__value"><%= @total_week %></p>
   </div>
-  <div class="rounded-lg border border-border bg-card p-5">
-    <p class="text-subtle text-xs uppercase tracking-wider mb-1">This Month</p>
-    <p class="text-2xl font-bold text-surface"><%= @total_month %></p>
+  <div class="tg-stat">
+    <p class="tg-stat__label">This Month</p>
+    <p class="tg-stat__value"><%= @total_month %></p>
   </div>
 </div>
 
 <%# Top pages %>
-<h2 class="text-sm font-semibold text-surface uppercase tracking-wider mb-3">Top Pages (last 30 days)</h2>
+<h2 class="tg-section-heading">Top Pages (last 30 days)</h2>
 <% if @top_pages.any? %>
-  <table class="w-full border-collapse text-sm mb-8">
+  <table class="tg-table">
     <thead>
       <tr>
-        <th class="text-left p-3.5 text-subtle text-xs uppercase tracking-wider border-b border-border">Path</th>
-        <th class="text-right p-3.5 text-subtle text-xs uppercase tracking-wider border-b border-border">Views</th>
+        <th class="tg-th">Path</th>
+        <th class="tg-th tg-th--right">Views</th>
       </tr>
     </thead>
     <tbody>
       <% @top_pages.each do |path, count| %>
         <tr>
-          <td class="p-3.5 border-b border-border text-surface font-medium"><%= path %></td>
-          <td class="p-3.5 border-b border-border text-muted text-right"><%= count %></td>
+          <td class="tg-td"><%= path %></td>
+          <td class="tg-td tg-td--num"><%= count %></td>
         </tr>
       <% end %>
     </tbody>
   </table>
 <% else %>
-  <p class="text-subtle text-[0.9375rem] py-4 mb-8">No data yet.</p>
+  <p class="tg-empty">No data yet.</p>
 <% end %>
 
 <%# Top referrers %>
-<h2 class="text-sm font-semibold text-surface uppercase tracking-wider mb-3">Top Referrers (last 30 days)</h2>
+<h2 class="tg-section-heading">Top Referrers (last 30 days)</h2>
 <% if @top_referrers.any? %>
-  <table class="w-full border-collapse text-sm mb-8">
+  <table class="tg-table">
     <thead>
       <tr>
-        <th class="text-left p-3.5 text-subtle text-xs uppercase tracking-wider border-b border-border">Referrer</th>
-        <th class="text-right p-3.5 text-subtle text-xs uppercase tracking-wider border-b border-border">Views</th>
+        <th class="tg-th">Referrer</th>
+        <th class="tg-th tg-th--right">Views</th>
       </tr>
     </thead>
     <tbody>
       <% @top_referrers.each do |referer, count| %>
         <tr>
-          <td class="p-3.5 border-b border-border text-surface font-medium break-all"><%= referer %></td>
-          <td class="p-3.5 border-b border-border text-muted text-right"><%= count %></td>
+          <td class="tg-td tg-td--break"><%= referer %></td>
+          <td class="tg-td tg-td--num"><%= count %></td>
         </tr>
       <% end %>
     </tbody>
   </table>
 <% else %>
-  <p class="text-subtle text-[0.9375rem] py-4 mb-8">No referrer data yet.</p>
+  <p class="tg-empty">No referrer data yet.</p>
 <% end %>
 
 <%# Top sources %>
-<h2 class="text-sm font-semibold text-surface uppercase tracking-wider mb-3">Top Sources (last 30 days)</h2>
+<h2 class="tg-section-heading">Top Sources (last 30 days)</h2>
 <% if @top_sources.any? %>
-  <table class="w-full border-collapse text-sm mb-8">
+  <table class="tg-table">
     <thead>
       <tr>
-        <th class="text-left p-3.5 text-subtle text-xs uppercase tracking-wider border-b border-border">Source</th>
-        <th class="text-right p-3.5 text-subtle text-xs uppercase tracking-wider border-b border-border">Views</th>
+        <th class="tg-th">Source</th>
+        <th class="tg-th tg-th--right">Views</th>
       </tr>
     </thead>
     <tbody>
       <% @top_sources.each do |source, count| %>
         <tr>
-          <td class="p-3.5 border-b border-border text-surface font-medium"><%= source %></td>
-          <td class="p-3.5 border-b border-border text-muted text-right"><%= count %></td>
+          <td class="tg-td"><%= source %></td>
+          <td class="tg-td tg-td--num"><%= count %></td>
         </tr>
       <% end %>
     </tbody>
   </table>
 <% else %>
-  <p class="text-subtle text-[0.9375rem] py-4 mb-8">No source data yet.</p>
+  <p class="tg-empty">No source data yet.</p>
 <% end %>
 
 <%# Recent visits %>
-<h2 class="text-sm font-semibold text-surface uppercase tracking-wider mb-3">Recent Visits</h2>
+<h2 class="tg-section-heading">Recent Visits</h2>
 <% if @recent.any? %>
-  <table class="w-full border-collapse text-sm">
+  <table class="tg-table">
     <tbody>
       <% @recent.each do |pv| %>
         <% visitor = pv.visitor %>
         <% flagged = visitor&.flagged_at.present? %>
-        <tr class="<%= flagged ? 'bg-red-950/20' : '' %>">
-          <td class="border-b border-border p-0">
+        <tr class="<%= flagged ? 'tg-row--flagged' : '' %>">
+          <td class="tg-td--bare">
             <details>
-              <summary class="flex items-center gap-3 p-3.5 cursor-pointer list-none">
-                <span class="text-surface font-medium flex-1 min-w-0 truncate"><%= pv.path %></span>
-                <span class="text-muted font-mono text-xs w-32 shrink-0"><%= visitor&.ip || "—" %></span>
-                <span class="w-6 text-center shrink-0">
+              <summary class="tg-summary">
+                <span class="tg-summary__path"><%= pv.path %></span>
+                <span class="tg-summary__ip"><%= visitor&.ip || "—" %></span>
+                <span class="tg-summary__flag">
                   <% if flagged %>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-red-500 inline-block" title="Flagged">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="tg-flag-icon" title="Flagged">
                       <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
                     </svg>
                   <% else %>
-                    <span class="text-subtle">—</span>
+                    —
                   <% end %>
                 </span>
-                <span class="text-muted text-sm w-28 shrink-0"><%= pv.created_at.strftime("%b %-d, %H:%M") %></span>
+                <span class="tg-summary__time"><%= pv.created_at.strftime("%b %-d, %H:%M") %></span>
               </summary>
-              <div class="px-4 pb-4 bg-card">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3">
+              <div class="tg-detail">
+                <div class="tg-detail__grid">
                   <div>
-                    <p class="text-subtle text-xs uppercase tracking-wider mb-2">Visitor</p>
-                    <dl class="space-y-1 text-xs">
-                      <div class="flex gap-2">
-                        <dt class="text-subtle w-24 shrink-0">IP</dt>
-                        <dd class="text-muted font-mono"><%= visitor&.ip || "—" %></dd>
+                    <p class="tg-detail__group-label">Visitor</p>
+                    <div class="tg-dl">
+                      <div class="tg-dl__row">
+                        <span class="tg-dl__term">IP</span>
+                        <span class="tg-dl__def tg-dl__def--mono"><%= visitor&.ip || "—" %></span>
                       </div>
-                      <div class="flex gap-2">
-                        <dt class="text-subtle w-24 shrink-0">First seen</dt>
-                        <dd class="text-muted"><%= visitor&.first_seen_at&.strftime("%b %-d %Y, %H:%M") || "—" %></dd>
+                      <div class="tg-dl__row">
+                        <span class="tg-dl__term">First seen</span>
+                        <span class="tg-dl__def"><%= visitor&.first_seen_at&.strftime("%b %-d %Y, %H:%M") || "—" %></span>
                       </div>
-                      <div class="flex gap-2">
-                        <dt class="text-subtle w-24 shrink-0">Last seen</dt>
-                        <dd class="text-muted"><%= visitor&.last_seen_at&.strftime("%b %-d %Y, %H:%M") || "—" %></dd>
+                      <div class="tg-dl__row">
+                        <span class="tg-dl__term">Last seen</span>
+                        <span class="tg-dl__def"><%= visitor&.last_seen_at&.strftime("%b %-d %Y, %H:%M") || "—" %></span>
                       </div>
-                      <div class="flex gap-2">
-                        <dt class="text-subtle w-24 shrink-0">User agent</dt>
-                        <dd class="text-muted break-all"><%= visitor&.user_agent.presence || "—" %></dd>
+                      <div class="tg-dl__row">
+                        <span class="tg-dl__term">User agent</span>
+                        <span class="tg-dl__def tg-dl__def--break"><%= visitor&.user_agent.presence || "—" %></span>
                       </div>
-                      <div class="flex gap-2 pt-1">
-                        <dt class="text-subtle w-24 shrink-0">Flag status</dt>
+                      <div class="tg-dl__row">
+                        <span class="tg-dl__term">Flag status</span>
                         <% if flagged %>
-                          <dd class="text-red-400">
+                          <span class="tg-dl__def tg-dl__def--flagged">
                             Flagged <%= visitor.flagged_at.strftime("%b %-d %Y, %H:%M") %>
-                            <% if visitor.flagged_by.present? %> by <span class="font-medium"><%= visitor.flagged_by %></span><% end %>
+                            <% if visitor.flagged_by.present? %> by <strong><%= visitor.flagged_by %></strong><% end %>
                             <% if visitor.flag_reason.present? %> — <%= visitor.flag_reason %><% end %>
-                          </dd>
+                          </span>
                         <% else %>
-                          <dd class="text-subtle">Not flagged</dd>
+                          <span class="tg-dl__def tg-dl__def--muted">Not flagged</span>
                         <% end %>
                       </div>
-                    </dl>
+                    </div>
                   </div>
                   <div>
-                    <p class="text-subtle text-xs uppercase tracking-wider mb-2">This Visit</p>
-                    <dl class="space-y-1 text-xs">
-                      <div class="flex gap-2">
-                        <dt class="text-subtle w-24 shrink-0">Session</dt>
-                        <dd class="text-muted font-mono break-all"><%= pv.session_id.presence || "—" %></dd>
+                    <p class="tg-detail__group-label">This Visit</p>
+                    <div class="tg-dl">
+                      <div class="tg-dl__row">
+                        <span class="tg-dl__term">Session</span>
+                        <span class="tg-dl__def tg-dl__def--mono"><%= pv.session_id.presence || "—" %></span>
                       </div>
-                      <div class="flex gap-2">
-                        <dt class="text-subtle w-24 shrink-0">Trace ID</dt>
-                        <dd class="text-muted font-mono break-all"><%= pv.trace_id.presence || "—" %></dd>
+                      <div class="tg-dl__row">
+                        <span class="tg-dl__term">Trace ID</span>
+                        <span class="tg-dl__def tg-dl__def--mono"><%= pv.trace_id.presence || "—" %></span>
                       </div>
-                      <div class="flex gap-2">
-                        <dt class="text-subtle w-24 shrink-0">Referrer</dt>
-                        <dd class="text-muted break-all"><%= pv.referer.presence || "—" %></dd>
+                      <div class="tg-dl__row">
+                        <span class="tg-dl__term">Referrer</span>
+                        <span class="tg-dl__def tg-dl__def--break"><%= pv.referer.presence || "—" %></span>
                       </div>
-                      <div class="flex gap-2">
-                        <dt class="text-subtle w-24 shrink-0">Source</dt>
-                        <dd class="text-muted"><%= pv.source.presence || "—" %></dd>
+                      <div class="tg-dl__row">
+                        <span class="tg-dl__term">Source</span>
+                        <span class="tg-dl__def"><%= pv.source.presence || "—" %></span>
                       </div>
-                    </dl>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -179,5 +179,5 @@
     </tbody>
   </table>
 <% else %>
-  <p class="text-subtle text-[0.9375rem] py-4">No visits recorded yet.</p>
+  <p class="tg-empty">No visits recorded yet.</p>
 <% end %>

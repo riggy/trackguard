@@ -1,0 +1,304 @@
+/* ── Reset ─────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ── Base ──────────────────────────────────────────────────────────── */
+.tg-body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  background-color: #07101f;
+  color: #e0e0e0;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ── Layout ────────────────────────────────────────────────────────── */
+.tg-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* ── Header ────────────────────────────────────────────────────────── */
+.tg-header {
+  background: #0d1829;
+  border-bottom: 1px solid #1c2d4a;
+  padding: 0.875rem 0;
+}
+
+.tg-header__inner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tg-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: #60a5fa;
+  text-decoration: none;
+  flex: 1;
+}
+
+.tg-brand__logo {
+  width: 20px;
+  height: 22px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.35));
+}
+
+/* ── Back link ─────────────────────────────────────────────────────── */
+.tg-back-link {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8125rem;
+  color: #666666;
+  text-decoration: none;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+
+.tg-back-link svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.tg-back-link:hover {
+  color: #e0e0e0;
+}
+
+/* ── Main ──────────────────────────────────────────────────────────── */
+.tg-main {
+  padding: 2rem 0 4rem;
+}
+
+/* ── Page header ───────────────────────────────────────────────────── */
+.tg-page-header {
+  margin-bottom: 1.75rem;
+}
+
+.tg-page-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #f0f0f0;
+}
+
+/* ── Stats ─────────────────────────────────────────────────────────── */
+.tg-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.tg-stat {
+  background: #0d1829;
+  border: 1px solid #1c2d4a;
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.tg-stat__label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #666666;
+  margin: 0 0 0.25rem;
+}
+
+.tg-stat__value {
+  font-size: 1.625rem;
+  font-weight: 700;
+  color: #f0f0f0;
+  margin: 0;
+}
+
+/* ── Section heading ───────────────────────────────────────────────── */
+.tg-section-heading {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #f0f0f0;
+  margin: 0 0 0.75rem;
+}
+
+/* ── Table ─────────────────────────────────────────────────────────── */
+.tg-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin-bottom: 2rem;
+}
+
+.tg-th {
+  text-align: left;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #666666;
+  border-bottom: 1px solid #1c2d4a;
+}
+
+.tg-th--right { text-align: right; }
+
+.tg-td {
+  padding: 0.75rem 0.875rem;
+  border-bottom: 1px solid #1c2d4a;
+  color: #f0f0f0;
+  font-weight: 500;
+}
+
+.tg-td--num {
+  text-align: right;
+  color: #e0e0e0;
+  font-weight: 400;
+}
+
+.tg-td--break { word-break: break-all; }
+
+.tg-td--bare {
+  padding: 0;
+  border-bottom: 1px solid #1c2d4a;
+}
+
+/* ── Empty state ───────────────────────────────────────────────────── */
+.tg-empty {
+  font-size: 0.9375rem;
+  color: #666666;
+  padding: 1rem 0 2rem;
+  margin: 0;
+}
+
+/* ── Accordion row ─────────────────────────────────────────────────── */
+.tg-row--flagged {
+  background: rgba(127, 29, 29, 0.15);
+}
+
+.tg-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.tg-summary::-webkit-details-marker { display: none; }
+
+.tg-summary__path {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #f0f0f0;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.tg-summary__ip {
+  font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+  font-size: 0.75rem;
+  color: #e0e0e0;
+  width: 8.5rem;
+  flex-shrink: 0;
+}
+
+.tg-summary__flag {
+  width: 1.5rem;
+  text-align: center;
+  flex-shrink: 0;
+  color: #666666;
+  font-size: 0.875rem;
+}
+
+.tg-summary__time {
+  font-size: 0.8125rem;
+  color: #e0e0e0;
+  width: 7.5rem;
+  flex-shrink: 0;
+}
+
+.tg-flag-icon {
+  width: 1rem;
+  height: 1rem;
+  color: #ef4444;
+  vertical-align: middle;
+}
+
+/* ── Detail panel ──────────────────────────────────────────────────── */
+.tg-detail {
+  padding: 0 1rem 1rem 1rem;
+  background: #0d1829;
+}
+
+.tg-detail__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  padding-top: 0.75rem;
+}
+
+.tg-detail__group-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #666666;
+  margin: 0 0 0.5rem;
+}
+
+/* ── Definition list ───────────────────────────────────────────────── */
+.tg-dl {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.tg-dl__row {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.tg-dl__term {
+  color: #666666;
+  width: 6rem;
+  flex-shrink: 0;
+}
+
+.tg-dl__def {
+  color: #e0e0e0;
+  margin: 0;
+}
+
+.tg-dl__def--mono {
+  font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+  word-break: break-all;
+}
+
+.tg-dl__def--break { word-break: break-all; }
+
+.tg-dl__def--flagged { color: #fca5a5; }
+
+.tg-dl__def--muted { color: #666666; }
+
+/* ── Responsive ────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .tg-stats { grid-template-columns: 1fr; }
+  .tg-detail__grid { grid-template-columns: 1fr; }
+  .tg-summary__ip { display: none; }
+}

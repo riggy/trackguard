@@ -8,6 +8,12 @@ module Trackguard
       end
     end
 
+    initializer "trackguard.assets" do |app|
+      if app.config.respond_to?(:assets)
+        app.config.assets.precompile += %w[trackguard/admin.css]
+      end
+    end
+
     initializer "trackguard.importmap", before: "importmap" do |app|
       if app.config.respond_to?(:importmap)
         app.config.importmap.paths << root.join("config/importmap.rb")
