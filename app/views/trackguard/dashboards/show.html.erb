@@ -115,6 +115,18 @@
                 <span class="tg-summary__time"><%= pv.created_at.strftime("%b %-d, %H:%M") %></span>
               </summary>
               <div class="tg-detail">
+                <% if visitor %>
+                  <div class="tg-detail__actions">
+                    <% if flagged %>
+                      <%= button_to "Unflag", unflag_visitor_path(visitor), method: :patch, class: "tg-btn tg-btn--ghost" %>
+                    <% else %>
+                      <%= form_with url: flag_visitor_path(visitor), method: :patch, class: "tg-flag-form" do |f| %>
+                        <%= f.text_field :flag_reason, placeholder: "Reason (optional)", class: "tg-input", autocomplete: "off" %>
+                        <%= f.submit "Flag", class: "tg-btn tg-btn--danger" %>
+                      <% end %>
+                    <% end %>
+                  </div>
+                <% end %>
                 <div class="tg-detail__grid">
                   <div>
                     <p class="tg-detail__group-label">Visitor</p>
