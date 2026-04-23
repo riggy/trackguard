@@ -8,7 +8,7 @@ FactoryBot.define do
     trait :flagged do
       flagged_at  { Time.current }
       flag_reason { "suspicious activity" }
-      flagged_by  { "system" }
+      flagged_by  { Trackguard::Visitor::FLAGGED_BY.first }
     end
   end
 end

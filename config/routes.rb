@@ -3,11 +3,7 @@ Trackguard::Engine.routes.draw do
 
   scope :admin do
     resource :dashboard, only: :show
-    resources :visitors, only: [] do
-      member do
-        patch :flag
-        patch :unflag
-      end
-    end
+    patch "visitors/flag",   to: "visitors#flag",   as: :flag_visitor
+    patch "visitors/unflag", to: "visitors#unflag", as: :unflag_visitor
   end
 end

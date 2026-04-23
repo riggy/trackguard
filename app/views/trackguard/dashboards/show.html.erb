@@ -118,9 +118,10 @@
                 <% if visitor %>
                   <div class="tg-detail__actions">
                     <% if flagged %>
-                      <%= button_to "Unflag", unflag_visitor_path(visitor), method: :patch, class: "tg-btn tg-btn--ghost" %>
+                      <%= button_to "Unflag", unflag_visitor_path, params: { id: visitor.id }, method: :patch, class: "tg-btn tg-btn--ghost" %>
                     <% else %>
-                      <%= form_with url: flag_visitor_path(visitor), method: :patch, class: "tg-flag-form" do |f| %>
+                      <%= form_with url: flag_visitor_path, method: :patch, class: "tg-flag-form" do |f| %>
+                        <%= hidden_field_tag :id, visitor.id %>
                         <%= f.text_field :flag_reason, placeholder: "Reason (optional)", class: "tg-input", autocomplete: "off" %>
                         <%= f.submit "Flag", class: "tg-btn tg-btn--danger" %>
                       <% end %>

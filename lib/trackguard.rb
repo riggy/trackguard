@@ -7,6 +7,7 @@ module Trackguard
     attr_writer :admin_layout
     attr_writer :back_url
     attr_writer :back_label
+    attr_writer :api_token
 
     def authenticate_admin_with
       @authenticate_admin_with ||= proc {}
@@ -22,6 +23,10 @@ module Trackguard
 
     def back_label
       @back_label ||= "Back to app"
+    end
+
+    def api_token
+      @api_token.to_s
     end
   end
 end

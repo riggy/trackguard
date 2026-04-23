@@ -2,7 +2,9 @@ module Trackguard
   class Visitor < ApplicationRecord
     self.table_name = "trackguard_visitors"
 
-    FLAGGED_BY = [ "User" ].freeze
+    FLAGGED_BY = [ "User", "claw:auto" ].freeze
+
+    validates :flagged_by, inclusion: { in: FLAGGED_BY }, allow_blank: true
 
     has_many :page_views, class_name: "Trackguard::PageView", foreign_key: "visitor_id"
 
