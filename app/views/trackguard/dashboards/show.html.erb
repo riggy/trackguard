@@ -95,9 +95,11 @@
   <table class="tg-table">
     <tbody>
       <% @recent.each do |pv| %>
-        <% visitor = pv.visitor %>
-        <% flagged = visitor&.flagged_at.present? %>
-        <tr class="<%= flagged ? 'tg-row--flagged' : '' %>">
+        <% visitor    = pv.visitor %>
+        <% flagged    = visitor&.flagged_at.present? %>
+        <% whitelisted = visitor&.whitelisted_ip&.active? %>
+        <% row_classes = [ ("tg-row--flagged" if flagged), ("tg-row--whitelisted" if whitelisted) ].compact.join(" ") %>
+        <tr class="<%= row_classes %>">
           <td class="tg-td--bare">
             <details>
               <summary class="tg-summary">
@@ -112,18 +114,40 @@
                     —
                   <% end %>
                 </span>
+                <span class="tg-summary__whitelist">
+                  <% if whitelisted %>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="tg-whitelist-icon" title="Whitelisted">
+                      <path fill-rule="evenodd" d="M9.661 2.237a.531.531 0 01.678 0 11.947 11.947 0 007.078 2.749.5.5 0 01.479.425c.069.52.104 1.05.104 1.589 0 5.162-3.26 9.563-7.834 11.256a.48.48 0 01-.332 0C5.26 16.563 2 12.162 2 7c0-.538.035-1.069.104-1.589a.5.5 0 01.48-.425 11.947 11.947 0 007.077-2.749zm2.55 5.513a.75.75 0 00-1.06-1.06L9 8.79l-.84-.84a.75.75 0 10-1.061 1.06l1.37 1.37a.75.75 0 001.06 0l2.682-2.67z" clip-rule="evenodd" />
+                    </svg>
+                  <% else %>
+                    —
+                  <% end %>
+                </span>
                 <span class="tg-summary__time"><%= pv.created_at.strftime("%b %-d, %H:%M") %></span>
               </summary>
               <div class="tg-detail">
                 <% if visitor %>
                   <div class="tg-detail__actions">
+                    <% if whitelisted %>
+                      <%= button_to "Remove from whitelist", unwhitelist_visitor_path,
+                            params: { id: visitor.id },
+                            method: :patch,
+                            class: "tg-btn tg-btn--ghost",
+                            data: { confirm: "Remove whitelist entry for #{visitor.ip}?" } %>
+                    <% else %>
+                      <%= button_to "Whitelist", whitelist_visitor_path,
+                            params: { id: visitor.id },
+                            method: :patch,
+                            class: "tg-btn tg-btn--whitelist",
+                            data: { confirm: "Whitelist #{visitor.ip} for 7 days?" } %>
+                    <% end %>
                     <% if flagged %>
                       <%= button_to "Unflag", unflag_visitor_path, params: { id: visitor.id }, method: :patch, class: "tg-btn tg-btn--ghost" %>
                     <% else %>
                       <%= form_with url: flag_visitor_path, method: :patch, class: "tg-flag-form" do |f| %>
                         <%= hidden_field_tag :id, visitor.id %>
-                        <%= f.text_field :flag_reason, placeholder: "Reason (optional)", class: "tg-input", autocomplete: "off" %>
                         <%= f.submit "Flag", class: "tg-btn tg-btn--danger" %>
+                        <%= f.text_field :flag_reason, placeholder: "Flag reason (optional)", class: "tg-input", autocomplete: "off" %>
                       <% end %>
                     <% end %>
                   </div>
@@ -158,6 +182,16 @@
                           </span>
                         <% else %>
                           <span class="tg-dl__def tg-dl__def--muted">Not flagged</span>
+                        <% end %>
+                      </div>
+                      <div class="tg-dl__row">
+                        <span class="tg-dl__term">Whitelist</span>
+                        <% if whitelisted %>
+                          <span class="tg-dl__def tg-dl__def--whitelisted">
+                            Active until <%= visitor.whitelisted_ip.expires_at.strftime("%b %-d %Y, %H:%M") %>
+                          </span>
+                        <% else %>
+                          <span class="tg-dl__def tg-dl__def--muted">Not whitelisted</span>
                         <% end %>
                       </div>
                     </div>

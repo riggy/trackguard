@@ -187,6 +187,10 @@
   background: rgba(127, 29, 29, 0.15);
 }
 
+.tg-row--whitelisted {
+  background: rgba(6, 78, 59, 0.15);
+}
+
 .tg-summary {
   display: flex;
   align-items: center;
@@ -225,6 +229,14 @@
   font-size: 0.875rem;
 }
 
+.tg-summary__whitelist {
+  width: 1.5rem;
+  text-align: center;
+  flex-shrink: 0;
+  color: #666666;
+  font-size: 0.875rem;
+}
+
 .tg-summary__time {
   font-size: 0.8125rem;
   color: #e0e0e0;
@@ -236,6 +248,13 @@
   width: 1rem;
   height: 1rem;
   color: #ef4444;
+  vertical-align: middle;
+}
+
+.tg-whitelist-icon {
+  width: 1rem;
+  height: 1rem;
+  color: #22c55e;
   vertical-align: middle;
 }
 
@@ -296,8 +315,13 @@
 
 .tg-dl__def--muted { color: #666666; }
 
+.tg-dl__def--whitelisted { color: #6ee7b7; }
+
 /* ── Flag actions ──────────────────────────────────────────────────── */
 .tg-detail__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.75rem 0 0;
   border-top: 1px solid #1c2d4a;
   margin-top: 0.75rem;
@@ -307,6 +331,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex: 1;
 }
 
 .tg-input {
@@ -338,6 +363,9 @@
 
 .tg-btn--ghost { background: #1c2d4a; color: #e0e0e0; }
 .tg-btn--ghost:hover { background: #243a5e; }
+
+.tg-btn--whitelist { background: #064e3b; color: #6ee7b7; }
+.tg-btn--whitelist:hover { background: #065f46; }
 
 /* ── Responsive ────────────────────────────────────────────────────── */
 @media (max-width: 640px) {

@@ -10,7 +10,7 @@ module Trackguard
       @top_referrers = PageView.last_30.with_referrer.group(:referer).order("count_all DESC").limit(10).count
       @top_sources = PageView.last_30.with_source.group(:source).order("count_all DESC").limit(10).count
 
-      @recent = PageView.order(created_at: :desc).limit(20).includes(:visitor)
+      @recent = PageView.order(created_at: :desc).limit(20).includes(visitor: :whitelisted_ip)
     end
   end
 end
