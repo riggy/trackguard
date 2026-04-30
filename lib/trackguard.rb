@@ -18,7 +18,7 @@ module Trackguard
     end
 
     def back_url
-      @back_url ||= "/"
+      @back_url ||= "/admin"
     end
 
     def back_label

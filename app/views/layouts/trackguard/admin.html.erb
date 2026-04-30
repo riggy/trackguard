@@ -35,7 +35,7 @@
           Trackguard
         </span>
 
-        <a class="tg-back-link" id="tg-back-link" href="<%= Trackguard.back_url %>">
+        <a class="tg-back-link" href="<%= Trackguard.back_url %>">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true">
             <path stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
                   stroke-linejoin="round" fill="none" d="M10.5 3.5L5.5 8l5 4.5"/>
@@ -57,20 +57,6 @@
     </div>
   </main>
   <script>
-    (function () {
-      var link = document.getElementById('tg-back-link');
-      if (!link) return;
-      link.addEventListener('click', function (e) {
-        var ref = document.referrer;
-        if (ref &&
-            ref.startsWith(window.location.origin) &&
-            new URL(ref).pathname !== window.location.pathname) {
-          e.preventDefault();
-          history.back();
-        }
-      });
-    })();
-
     (function () {
       var key = 'tg-scroll';
       var saved = sessionStorage.getItem(key);
