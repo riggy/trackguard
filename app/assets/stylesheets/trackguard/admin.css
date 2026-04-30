@@ -74,9 +74,36 @@
   color: #e0e0e0;
 }
 
+/* ── Nav ───────────────────────────────────────────────────────────── */
+.tg-nav {
+  background: #0d1829;
+  border-bottom: 1px solid #1c2d4a;
+}
+
+.tg-nav > .tg-container {
+  display: flex;
+}
+
+.tg-nav__link {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  color: #666666;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s;
+}
+
+.tg-nav__link:hover { color: #e0e0e0; }
+
+.tg-nav__link--active {
+  color: #60a5fa;
+  border-bottom-color: #60a5fa;
+}
+
 /* ── Main ──────────────────────────────────────────────────────────── */
 .tg-main {
-  padding: 2rem 0 4rem;
+  padding: 1.25rem 0 4rem;
 }
 
 /* ── Page header ───────────────────────────────────────────────────── */
@@ -123,14 +150,87 @@
   margin: 0;
 }
 
-/* ── Section heading ───────────────────────────────────────────────── */
-.tg-section-heading {
+/* ── Page title count ──────────────────────────────────────────────── */
+.tg-page-title__count {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  color: #666666;
+  margin-left: 0.5rem;
+}
+
+/* ── Panel grid ────────────────────────────────────────────────────── */
+.tg-panels {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tg-panel {
+  background: #0d1829;
+  border: 1px solid #1c2d4a;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.tg-panel__heading {
   font-size: 0.6875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #f0f0f0;
   margin: 0 0 0.75rem;
+}
+
+.tg-panel__sub {
+  font-weight: 400;
+  color: #666666;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.tg-panel .tg-table { margin-bottom: 0; }
+
+.tg-panel tr:last-child .tg-td,
+.tg-panel tr:last-child .tg-td--bare { border-bottom: none; }
+
+/* ── Pagination ────────────────────────────────────────────────────── */
+.tg-pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1rem 0 0;
+  flex-wrap: wrap;
+}
+
+.tg-pagination__link {
+  padding: 0.25rem 0.625rem;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  color: #e0e0e0;
+  text-decoration: none;
+  background: #1c2d4a;
+}
+
+.tg-pagination__link:hover { background: #243a5e; }
+
+.tg-pagination__link--active {
+  background: #60a5fa;
+  color: #07101f;
+  font-weight: 600;
+}
+
+.tg-pagination__link--disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.tg-pagination__ellipsis {
+  padding: 0.25rem 0.25rem;
+  font-size: 0.8125rem;
+  color: #666666;
 }
 
 /* ── Table ─────────────────────────────────────────────────────────── */
@@ -368,6 +468,10 @@
 .tg-btn--whitelist:hover { background: #065f46; }
 
 /* ── Responsive ────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .tg-panels { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 640px) {
   .tg-stats { grid-template-columns: 1fr; }
   .tg-detail__grid { grid-template-columns: 1fr; }
