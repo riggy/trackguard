@@ -3,6 +3,7 @@ Trackguard::Engine.routes.draw do
 
   scope :admin do
     resource :dashboard, only: :show
+    resource :analytics, only: :show
     patch "visitors/flag",        to: "visitors#flag",              as: :flag_visitor
     patch "visitors/unflag",      to: "visitors#unflag",            as: :unflag_visitor
     patch "visitors/whitelist",   to: "whitelisted_ips#create",     as: :whitelist_visitor
