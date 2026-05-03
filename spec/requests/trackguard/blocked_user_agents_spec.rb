@@ -36,9 +36,9 @@ RSpec.describe "Admin blocked user agents", type: :request do
 
     it "is idempotent — does not create a duplicate" do
       create(:blocked_user_agent, pattern: "AhrefsBot")
-      expect {
+      expect do
         post "/admin/blocked_user_agents", params: { pattern: "AhrefsBot" }
-      }.not_to change(Trackguard::BlockedUserAgent, :count)
+      end.not_to change(Trackguard::BlockedUserAgent, :count)
       expect(response).to have_http_status(:ok)
     end
 
@@ -66,20 +66,20 @@ RSpec.describe "Admin blocked user agents", type: :request do
 
       it "allows index with a valid bearer token" do
         get "/admin/blocked_user_agents",
-          headers: { "Authorization" => "Bearer secret-token" }
+            headers: { "Authorization" => "Bearer secret-token" }
         expect(response).to have_http_status(:ok)
       end
 
       it "allows create with a valid bearer token" do
         post "/admin/blocked_user_agents",
-          params: { pattern: "SemrushBot" },
-          headers: { "Authorization" => "Bearer secret-token" }
+             params: { pattern: "SemrushBot" },
+             headers: { "Authorization" => "Bearer secret-token" }
         expect(response).to have_http_status(:ok)
       end
 
       it "rejects with an invalid bearer token" do
         get "/admin/blocked_user_agents",
-          headers: { "Authorization" => "Bearer wrong-token" }
+            headers: { "Authorization" => "Bearer wrong-token" }
         expect(response).to have_http_status(:unauthorized)
       end
 

@@ -1,7 +1,9 @@
 FactoryBot.define do
   factory :visitor, class: "Trackguard::Visitor" do
-    sequence(:ip) { |n| "192.168.#{n / 254 + 1}.#{n % 254 + 1}" }
-    user_agent    { "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36" }
+    sequence(:ip) { |n| "192.168.#{(n / 254) + 1}.#{(n % 254) + 1}" }
+    user_agent    do
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+    end
     first_seen_at { Time.current }
     last_seen_at  { Time.current }
 

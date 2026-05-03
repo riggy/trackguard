@@ -3,11 +3,11 @@ module Trackguard
     self.table_name = "trackguard_visitors"
 
     FLAGGED_BY = [ "User", "claw:auto" ].freeze
-    CACHE_KEY = "trackguard/flagged_ips"
+    CACHE_KEY = "trackguard/flagged_ips".freeze
 
     validates :flagged_by, inclusion: { in: FLAGGED_BY }, allow_blank: true
 
-    has_many :page_views,    class_name: "Trackguard::PageView",    foreign_key: "visitor_id"
+    has_many :page_views, class_name: "Trackguard::PageView", foreign_key: "visitor_id"
     has_one  :whitelisted_ip, class_name: "Trackguard::WhitelistedIp", foreign_key: "visitor_id"
 
     scope :unflagged, -> { where(flagged_at: nil) }

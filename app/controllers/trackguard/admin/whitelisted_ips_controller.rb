@@ -48,15 +48,16 @@ module Trackguard
 
       def authenticate_admin!
         return if valid_api_token?
+
         super
       end
 
       def set_visitor
         @visitor = if params[:ip].present?
-          Visitor.find_by!(ip: params[:ip])
-        else
-          Visitor.find(params[:id])
-        end
+                     Visitor.find_by!(ip: params[:ip])
+                   else
+                     Visitor.find(params[:id])
+                   end
       end
     end
   end

@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe "POST /page_views", type: :request do
   def post_page_view(params: {}, user_agent: "Mozilla/5.0")
     post "/page_views",
-         params:  { path: "/blog", trace_id: "trace-001" }.merge(params),
+         params: { path: "/blog", trace_id: "trace-001" }.merge(params),
          headers: { "User-Agent" => user_agent }
   end
 
@@ -17,9 +17,9 @@ RSpec.describe "POST /page_views", type: :request do
   end
 
   it "does not enqueue a job for a bot user agent" do
-    expect {
+    expect do
       post_page_view(user_agent: "Googlebot/2.1")
-    }.not_to have_enqueued_job
+    end.not_to have_enqueued_job
   end
 
   it "still returns 204 for a bot" do
@@ -28,8 +28,8 @@ RSpec.describe "POST /page_views", type: :request do
   end
 
   it "passes ref param as source" do
-    expect {
+    expect do
       post_page_view(params: { ref: "twitter" })
-    }.to have_enqueued_job(Trackguard::TrackPageViewJob).with(hash_including(source: "twitter"))
+    end.to have_enqueued_job(Trackguard::TrackPageViewJob).with(hash_including(source: "twitter"))
   end
 end

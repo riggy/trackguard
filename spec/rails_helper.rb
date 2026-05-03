@@ -1,8 +1,8 @@
-require 'spec_helper'
-ENV['RAILS_ENV'] ||= 'test'
-require File.expand_path('dummy/config/environment', __dir__)
+require "spec_helper"
+ENV["RAILS_ENV"] ||= "test"
+require File.expand_path("dummy/config/environment", __dir__)
 abort("The Rails environment is running in production mode!") if Rails.env.production?
-require 'rspec/rails'
+require "rspec/rails"
 
 # Set up the test database schema
 ActiveRecord::Schema.verbose = false
@@ -21,7 +21,7 @@ ActiveRecord::Schema.define do
   add_index :trackguard_visitors, :ip, unique: true
 
   create_table :trackguard_page_views, force: :cascade do |t|
-    t.string   :path,       null: false
+    t.string   :path, null: false
     t.string   :user_agent
     t.string   :referer
     t.string   :session_id
@@ -43,7 +43,7 @@ ActiveRecord::Schema.define do
     t.timestamps
   end
 
-  add_index :trackguard_whitelisted_ips, :ip,         unique: true
+  add_index :trackguard_whitelisted_ips, :ip, unique: true
   add_index :trackguard_whitelisted_ips, :expires_at
   add_index :trackguard_whitelisted_ips, :visitor_id
 

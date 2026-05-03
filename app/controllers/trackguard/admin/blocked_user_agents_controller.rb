@@ -19,6 +19,7 @@ module Trackguard
 
       def authenticate_admin!
         return if valid_api_token?
+
         super
       end
     end

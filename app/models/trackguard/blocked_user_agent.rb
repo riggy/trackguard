@@ -2,7 +2,7 @@ module Trackguard
   class BlockedUserAgent < ApplicationRecord
     self.table_name = "trackguard_blocked_user_agents"
 
-    CACHE_KEY = "trackguard/blocked_user_agent_patterns"
+    CACHE_KEY = "trackguard/blocked_user_agent_patterns".freeze
 
     validates :pattern, presence: true, uniqueness: true
 

@@ -4,6 +4,7 @@ RSpec.describe Trackguard::PageTracker, type: :controller do
   context "with track_page_views on all actions" do
     controller(ApplicationController) do
       include Trackguard::PageTracker
+
       track_page_views
 
       def index
@@ -27,13 +28,19 @@ RSpec.describe Trackguard::PageTracker, type: :controller do
   context "with track_page_views only: :show" do
     controller(ApplicationController) do
       include Trackguard::PageTracker
+
       track_page_views only: :show
 
-      def index; head :ok; end
-      def show;  head :ok; end
+      def index = head(:ok)
+      def show = head(:ok)
     end
 
-    before { routes.draw { get "show" => "anonymous#show"; get "index" => "anonymous#index" } }
+    before do
+      routes.draw do
+        get "show" => "anonymous#show"
+        get "index" => "anonymous#index"
+      end
+    end
 
     it "tracks the specified action" do
       expect { get :show }.to have_enqueued_job(Trackguard::TrackPageViewJob)
@@ -47,13 +54,19 @@ RSpec.describe Trackguard::PageTracker, type: :controller do
   context "with track_page_views except: :index" do
     controller(ApplicationController) do
       include Trackguard::PageTracker
+
       track_page_views except: :index
 
-      def index; head :ok; end
-      def show;  head :ok; end
+      def index = head(:ok)
+      def show = head(:ok)
     end
 
-    before { routes.draw { get "show" => "anonymous#show"; get "index" => "anonymous#index" } }
+    before do
+      routes.draw do
+        get "show" => "anonymous#show"
+        get "index" => "anonymous#index"
+      end
+    end
 
     it "tracks actions not in the except list" do
       expect { get :show }.to have_enqueued_job(Trackguard::TrackPageViewJob)

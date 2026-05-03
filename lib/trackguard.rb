@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'trackguard/version'
-require 'trackguard/engine'
-require 'trackguard/rack_attack'
+require "trackguard/version"
+require "trackguard/engine"
+require "trackguard/rack_attack"
 
 module Trackguard
   class << self
@@ -14,15 +14,15 @@ module Trackguard
     end
 
     def admin_layout
-      @admin_layout ||= 'trackguard/admin'
+      @admin_layout ||= "trackguard/admin"
     end
 
     def back_url
-      @back_url ||= '/admin'
+      @back_url ||= "/admin"
     end
 
     def back_label
-      @back_label ||= 'Back to app'
+      @back_label ||= "Back to app"
     end
 
     def api_token

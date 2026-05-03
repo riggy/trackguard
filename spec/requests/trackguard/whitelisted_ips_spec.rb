@@ -61,8 +61,8 @@ RSpec.describe "Admin whitelist actions", type: :request do
     it "responds with 404 JSON when visitor is not whitelisted" do
       whitelist_entry.destroy!
       patch "/admin/visitors/unwhitelist",
-        params: { id: visitor.id },
-        headers: { "Accept" => "application/json" }
+            params: { id: visitor.id },
+            headers: { "Accept" => "application/json" }
       expect(response).to have_http_status(:not_found)
     end
   end
@@ -77,8 +77,8 @@ RSpec.describe "Admin whitelist actions", type: :request do
 
       it "allows whitelist with a valid bearer token" do
         patch "/admin/visitors/whitelist",
-          params: { id: visitor.id },
-          headers: { "Authorization" => "Bearer secret-token", "Accept" => "application/json" }
+              params: { id: visitor.id },
+              headers: { "Authorization" => "Bearer secret-token", "Accept" => "application/json" }
         expect(response).to have_http_status(:ok)
         expect(Trackguard::WhitelistedIp.active.exists?(ip: visitor.ip)).to be true
       end
@@ -86,22 +86,22 @@ RSpec.describe "Admin whitelist actions", type: :request do
       it "allows unwhitelist with a valid bearer token" do
         create(:whitelisted_ip, ip: visitor.ip, visitor: visitor)
         patch "/admin/visitors/unwhitelist",
-          params: { id: visitor.id },
-          headers: { "Authorization" => "Bearer secret-token", "Accept" => "application/json" }
+              params: { id: visitor.id },
+              headers: { "Authorization" => "Bearer secret-token", "Accept" => "application/json" }
         expect(response).to have_http_status(:ok)
       end
 
       it "rejects whitelist with an invalid bearer token" do
         patch "/admin/visitors/whitelist",
-          params: { id: visitor.id },
-          headers: { "Authorization" => "Bearer wrong-token", "Accept" => "application/json" }
+              params: { id: visitor.id },
+              headers: { "Authorization" => "Bearer wrong-token", "Accept" => "application/json" }
         expect(response).to have_http_status(:unauthorized)
       end
 
       it "rejects whitelist with no token" do
         patch "/admin/visitors/whitelist",
-          params: { id: visitor.id },
-          headers: { "Accept" => "application/json" }
+              params: { id: visitor.id },
+              headers: { "Accept" => "application/json" }
         expect(response).to have_http_status(:unauthorized)
       end
     end

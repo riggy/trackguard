@@ -71,30 +71,30 @@ RSpec.describe "Admin visitor flag actions", type: :request do
 
       it "allows flag with a valid bearer token" do
         patch "/admin/visitors/flag",
-          params: { id: visitor.id, flag_reason: "bot" },
-          headers: { "Authorization" => "Bearer secret-token", "Accept" => "application/json" }
+              params: { id: visitor.id, flag_reason: "bot" },
+              headers: { "Authorization" => "Bearer secret-token", "Accept" => "application/json" }
         expect(response).to have_http_status(:ok)
         expect(visitor.reload.flagged_at).not_to be_nil
       end
 
       it "allows unflag with a valid bearer token" do
         patch "/admin/visitors/unflag",
-          params: { id: visitor.id },
-          headers: { "Authorization" => "Bearer secret-token", "Accept" => "application/json" }
+              params: { id: visitor.id },
+              headers: { "Authorization" => "Bearer secret-token", "Accept" => "application/json" }
         expect(response).to have_http_status(:ok)
       end
 
       it "rejects flag with an invalid bearer token" do
         patch "/admin/visitors/flag",
-          params: { id: visitor.id, flag_reason: "bot" },
-          headers: { "Authorization" => "Bearer wrong-token", "Accept" => "application/json" }
+              params: { id: visitor.id, flag_reason: "bot" },
+              headers: { "Authorization" => "Bearer wrong-token", "Accept" => "application/json" }
         expect(response).to have_http_status(:unauthorized)
       end
 
       it "rejects flag with no token" do
         patch "/admin/visitors/flag",
-          params: { id: visitor.id, flag_reason: "bot" },
-          headers: { "Accept" => "application/json" }
+              params: { id: visitor.id, flag_reason: "bot" },
+              headers: { "Accept" => "application/json" }
         expect(response).to have_http_status(:unauthorized)
       end
     end
