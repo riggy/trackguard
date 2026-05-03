@@ -9,4 +9,5 @@ Gem::Specification.new do |s|
   s.require_paths = [ "lib" ]
 
   s.add_dependency "rails", ">= 8.1"
+  s.add_dependency "rack-attack"
 end

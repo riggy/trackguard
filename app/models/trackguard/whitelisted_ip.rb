@@ -2,6 +2,8 @@ module Trackguard
   class WhitelistedIp < ApplicationRecord
     self.table_name = "trackguard_whitelisted_ips"
 
+    CACHE_KEY = "trackguard/whitelisted_ips"
+
     belongs_to :visitor, class_name: "Trackguard::Visitor", optional: true
 
     validates :ip,         presence: true, uniqueness: true
@@ -10,7 +12,11 @@ module Trackguard
     scope :active, -> { where(expires_at: Time.current..) }
 
     def self.whitelisted?(ip)
-      active.exists?(ip: ip)
+      active_ips = Rails.cache.fetch(CACHE_KEY, expires_in: 10.minutes) do
+        active.pluck(:ip)
+      end
+
+      active_ips.include?(ip)
     end
 
     def active?
