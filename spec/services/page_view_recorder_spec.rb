@@ -75,4 +75,26 @@ RSpec.describe Trackguard::PageViewRecorder do
       call(source: "   ")
     }.to have_enqueued_job(Trackguard::TrackPageViewJob).with(hash_including(source: nil))
   end
+
+  context "when user agent is on the blocked list" do
+    before { create(:blocked_user_agent, pattern: "AhrefsBot") }
+
+    it "does not enqueue for a matching user agent" do
+      expect {
+        call(user_agent: "AhrefsBot/7.0")
+      }.not_to have_enqueued_job
+    end
+
+    it "does not enqueue for a case-insensitive match" do
+      expect {
+        call(user_agent: "ahrefsbot/7.0")
+      }.not_to have_enqueued_job
+    end
+
+    it "still enqueues for a non-blocked user agent" do
+      expect {
+        call(user_agent: "Mozilla/5.0 Chrome/124")
+      }.to have_enqueued_job(Trackguard::TrackPageViewJob)
+    end
+  end
 end

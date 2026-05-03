@@ -37,5 +37,12 @@ class CreateTrackguardTables < ActiveRecord::Migration[<%= ActiveRecord::Migrati
 
     add_index :trackguard_whitelisted_ips, :ip,         unique: true
     add_index :trackguard_whitelisted_ips, :expires_at
+
+    create_table :trackguard_blocked_user_agents do |t|
+      t.string :pattern, null: false
+      t.timestamps
+    end
+
+    add_index :trackguard_blocked_user_agents, :pattern, unique: true
   end
 end

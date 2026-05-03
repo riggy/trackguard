@@ -46,6 +46,13 @@ ActiveRecord::Schema.define do
   add_index :trackguard_whitelisted_ips, :ip,         unique: true
   add_index :trackguard_whitelisted_ips, :expires_at
   add_index :trackguard_whitelisted_ips, :visitor_id
+
+  create_table :trackguard_blocked_user_agents, force: :cascade do |t|
+    t.string :pattern, null: false
+    t.timestamps
+  end
+
+  add_index :trackguard_blocked_user_agents, :pattern, unique: true
 end
 
 FactoryBot.definition_file_paths = [ File.expand_path("factories", __dir__) ]

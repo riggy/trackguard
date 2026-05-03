@@ -15,6 +15,7 @@ module Trackguard
 
     def call
       return if BOT_REGEX.match?(@user_agent)
+      return if BlockedUserAgent.blocked?(@user_agent)
       return if @path.blank? || @path.start_with?("/admin")
 
       TrackPageViewJob.perform_later(

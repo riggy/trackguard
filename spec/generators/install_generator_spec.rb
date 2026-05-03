@@ -15,6 +15,16 @@ RSpec.describe Trackguard::InstallGenerator do
     $stdout = original
   end
 
+  def run_generator_capturing_output
+    buffer = StringIO.new
+    original = $stdout
+    $stdout = buffer
+    Trackguard::InstallGenerator.start([], destination_root: destination)
+    buffer.string
+  ensure
+    $stdout = original
+  end
+
   def generated_migration
     Dir[File.join(destination, "db", "migrate", "*.rb")].first
   end
@@ -58,5 +68,17 @@ RSpec.describe Trackguard::InstallGenerator do
     expect(content).to include(":trace_id")
     expect(content).to include(":source")
     expect(content).to include(":visitor")
+  end
+
+  it "creates the blocked_user_agents table" do
+    run_generator
+    content = File.read(generated_migration)
+    expect(content).to include("create_table :trackguard_blocked_user_agents")
+    expect(content).to include("add_index :trackguard_blocked_user_agents, :pattern, unique: true")
+  end
+
+  it "prints next steps including the seed task" do
+    output = run_generator_capturing_output
+    expect(output).to include("trackguard:seed_blocked_user_agents")
   end
 end

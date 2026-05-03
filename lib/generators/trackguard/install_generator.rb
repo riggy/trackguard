@@ -14,5 +14,11 @@ module Trackguard
     def create_migration_file
       migration_template 'create_trackguard_tables.rb', 'db/migrate/create_trackguard_tables.rb'
     end
+
+    def print_next_steps
+      say "\nNext steps:", :green
+      say "  1. rails db:migrate"
+      say "  2. rails trackguard:seed_blocked_user_agents"
+    end
   end
 end
