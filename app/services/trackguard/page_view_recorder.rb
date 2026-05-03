@@ -1,6 +1,12 @@
 module Trackguard
   class PageViewRecorder < ApplicationService
-    BOT_REGEX = /Googlebot|Bingbot|Slurp|DuckDuckBot|Baidu|YandexBot|facebookexternalhit|Twitterbot|LinkedInBot|curl|wget|python-requests|python-urllib|Go-http-client|libwww|Java|Ruby|bot|crawl|spider/i
+    BOT_REGEX = /
+      Googlebot|Bingbot|Slurp|DuckDuckBot|Baidu|YandexBot|
+      facebookexternalhit|Twitterbot|LinkedInBot|
+      curl|wget|python-requests|python-urllib|
+      Go-http-client|libwww|Java|Ruby|
+      bot|crawl|spider
+    /ix
 
     def initialize(path:, ip:, user_agent:, referer:, session_id:, trace_id:, source: nil, initial: false)
       @path       = path.to_s
@@ -19,14 +25,14 @@ module Trackguard
       return if @path.blank? || @path.start_with?("/admin")
 
       TrackPageViewJob.perform_later(
-        path:       @path,
-        ip:         @ip,
+        path: @path,
+        ip: @ip,
         user_agent: @user_agent,
-        referer:    @referer,
+        referer: @referer,
         session_id: @session_id,
-        trace_id:   @trace_id,
-        source:     @source,
-        initial:    @initial
+        trace_id: @trace_id,
+        source: @source,
+        initial: @initial
       )
     end
   end

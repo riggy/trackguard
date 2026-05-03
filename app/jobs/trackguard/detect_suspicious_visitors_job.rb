@@ -9,10 +9,10 @@ module Trackguard
     MIN_VIEWS            = 3
 
     WEIGHTS = {
-      high_volume:   4,
+      high_volume: 4,
       medium_volume: 2,
-      no_session:    3,
-      no_referer:    2
+      no_session: 3,
+      no_referer: 2
     }.freeze
 
     def perform
@@ -21,12 +21,12 @@ module Trackguard
       flag_shared_trace_id_visitors(recent_cutoff)
 
       views_by_visitor = PageView
-                          .where(created_at: recent_cutoff..)
-                          .joins(:visitor)
-                          .merge(Visitor.unflagged)
-                          .preload(visitor: :whitelisted_ip)
-                          .select(:visitor_id, :session_id, :referer, :path, :trace_id)
-                          .group_by(&:visitor)
+                         .where(created_at: recent_cutoff..)
+                         .joins(:visitor)
+                         .merge(Visitor.unflagged)
+                         .preload(visitor: :whitelisted_ip)
+                         .select(:visitor_id, :session_id, :referer, :path, :trace_id)
+                         .group_by(&:visitor)
 
       return if views_by_visitor.empty?
 
@@ -37,6 +37,7 @@ module Trackguard
 
     private
 
+    # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
     def analyze_visitor(visitor, views)
       count = views.size
       return if count.zero?
@@ -86,14 +87,15 @@ module Trackguard
 
       flag!(visitor, reasons.join("; "))
     end
+    # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
     def flag_shared_trace_id_visitors(cutoff)
       shared = PageView
-                 .where(created_at: cutoff..)
-                 .where.not(trace_id: nil)
-                 .group(:trace_id)
-                 .having("COUNT(DISTINCT visitor_id) > 1")
-                 .pluck(:trace_id)
+               .where(created_at: cutoff..)
+               .where.not(trace_id: nil)
+               .group(:trace_id)
+               .having("COUNT(DISTINCT visitor_id) > 1")
+               .pluck(:trace_id)
 
       return if shared.empty?
 
