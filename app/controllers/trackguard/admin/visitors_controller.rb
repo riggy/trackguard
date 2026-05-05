@@ -11,11 +11,13 @@ module Trackguard
         end
       end
 
+      # rubocop:disable Metrics/AbcSize
       def flag
         if @visitor.update(
           flagged_at: Time.current,
           flag_reason: params[:flag_reason].presence,
-          flagged_by: params[:flagged_by].presence || Visitor::FLAGGED_BY.first
+          flagged_by: params[:flagged_by].presence || Visitor::FLAGGED_BY.first,
+          name: params[:name].presence || BlockedUserAgent.matching_pattern(@visitor.user_agent)
         )
           respond_to do |format|
             format.html { redirect_back_or_to dashboard_path }
@@ -28,6 +30,7 @@ module Trackguard
           end
         end
       end
+      # rubocop:enable Metrics/AbcSize
 
       def unflag
         @visitor.update!(flagged_at: nil, flag_reason: nil, flagged_by: nil)

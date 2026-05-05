@@ -15,6 +15,7 @@ ActiveRecord::Schema.define do
     t.datetime :flagged_at
     t.string   :flag_reason
     t.string   :flagged_by
+    t.string   :name
     t.timestamps
   end
 

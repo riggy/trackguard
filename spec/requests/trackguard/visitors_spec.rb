@@ -29,6 +29,37 @@ RSpec.describe "Admin visitor flag actions", type: :request do
       expect(visitor.reload.flag_reason).to be_nil
     end
 
+    it "sets name from params" do
+      patch "/admin/visitors/flag", params: { id: visitor.id, name: "Scrapy" }
+      expect(visitor.reload.name).to eq("Scrapy")
+    end
+
+    it "treats blank name as nil when no BlockedUserAgent pattern matches" do
+      patch "/admin/visitors/flag", params: { id: visitor.id, name: "" }
+      expect(visitor.reload.name).to be_nil
+    end
+
+    it "derives name from BlockedUserAgent when name param is absent" do
+      Rails.cache.delete(Trackguard::BlockedUserAgent::CACHE_KEY)
+      create(:blocked_user_agent, pattern: "Chrome")
+      patch "/admin/visitors/flag", params: { id: visitor.id }
+      expect(visitor.reload.name).to eq("Chrome")
+    end
+
+    it "derives name from BlockedUserAgent when name param is blank" do
+      Rails.cache.delete(Trackguard::BlockedUserAgent::CACHE_KEY)
+      create(:blocked_user_agent, pattern: "Chrome")
+      patch "/admin/visitors/flag", params: { id: visitor.id, name: "" }
+      expect(visitor.reload.name).to eq("Chrome")
+    end
+
+    it "prefers explicit name param over auto-detection" do
+      Rails.cache.delete(Trackguard::BlockedUserAgent::CACHE_KEY)
+      create(:blocked_user_agent, pattern: "Chrome")
+      patch "/admin/visitors/flag", params: { id: visitor.id, name: "custom-name" }
+      expect(visitor.reload.name).to eq("custom-name")
+    end
+
     it "redirects after flagging" do
       patch "/admin/visitors/flag", params: { id: visitor.id }
       expect(response).to have_http_status(:redirect)
@@ -53,6 +84,12 @@ RSpec.describe "Admin visitor flag actions", type: :request do
       v = visitor.reload
       expect(v.flag_reason).to be_nil
       expect(v.flagged_by).to be_nil
+    end
+
+    it "preserves name after unflagging" do
+      visitor.update!(name: "Scrapy")
+      patch "/admin/visitors/unflag", params: { id: visitor.id }
+      expect(visitor.reload.name).to eq("Scrapy")
     end
 
     it "redirects after unflagging" do

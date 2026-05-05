@@ -43,13 +43,15 @@ module Trackguard
       return if count.zero?
       return if visitor.whitelisted_ip&.active?
 
+      name = name_from_ua(visitor.user_agent)
+
       if count >= HARD_FLAG_THRESHOLD
-        flag!(visitor, "#{count} page views in 24h (hard flag threshold)")
+        flag!(visitor, "#{count} page views in 24h (hard flag threshold)", name: name)
         return
       end
 
       if (reason = ua_flag_reason(visitor.user_agent))
-        flag!(visitor, reason)
+        flag!(visitor, reason, name: name)
         return
       end
 
@@ -58,7 +60,7 @@ module Trackguard
       return if count < MIN_VIEWS
 
       if views.all? { |pv| pv.session_id.nil? && pv.referer.nil? && pv.path == "/" }
-        flag!(visitor, "no session, no referrer, single root hit")
+        flag!(visitor, "no session, no referrer, single root hit", name: name)
         return
       end
 
@@ -85,7 +87,7 @@ module Trackguard
 
       return if score < FLAG_SCORE_THRESHOLD
 
-      flag!(visitor, reasons.join("; "))
+      flag!(visitor, reasons.join("; "), name: name)
     end
     # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
@@ -107,7 +109,8 @@ module Trackguard
         .where("wi.id IS NULL OR wi.expires_at <= ?", Time.current)
         .distinct
         .each do |visitor|
-          flag!(visitor, "trace_id shared across multiple visitors (cross-visitor bot detected)")
+          flag!(visitor, "trace_id shared across multiple visitors (cross-visitor bot detected)",
+                name: name_from_ua(visitor.user_agent))
         end
     end
 
@@ -115,8 +118,12 @@ module Trackguard
       "blank or minimal user-agent" if user_agent.blank? || user_agent.to_s.length < 10
     end
 
-    def flag!(visitor, reason)
-      visitor.update!(flagged_at: Time.current, flag_reason: reason, flagged_by: "claw:auto")
+    def flag!(visitor, reason, name: nil)
+      visitor.update!(flagged_at: Time.current, flag_reason: reason, flagged_by: "claw:auto", name: name)
+    end
+
+    def name_from_ua(user_agent)
+      BlockedUserAgent.matching_pattern(user_agent)
     end
 
     def blank_ratio(views, attr)

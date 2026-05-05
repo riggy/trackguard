@@ -16,12 +16,12 @@ RSpec.describe Trackguard::UpgradeGenerator do
   end
 
   def generated_migration
-    Dir[File.join(destination, "db", "migrate", "*.rb")].first
+    Dir[File.join(destination, "db", "migrate", "*.rb")].find { |f| f.include?("add_trackguard_visits") }
   end
 
-  it "creates exactly one migration file" do
+  it "creates exactly two migration files" do
     run_generator
-    expect(Dir[File.join(destination, "db", "migrate", "*.rb")].length).to eq(1)
+    expect(Dir[File.join(destination, "db", "migrate", "*.rb")].length).to eq(2)
   end
 
   it "gives the migration a valid timestamp-based filename" do
@@ -50,5 +50,29 @@ RSpec.describe Trackguard::UpgradeGenerator do
     content = File.read(generated_migration)
     expect(content).to include(":block_reason")
     expect(content).to include(":http_method")
+  end
+
+  context "add_visitor_name migration" do
+    def generated_migrations
+      Dir[File.join(destination, "db", "migrate", "*.rb")]
+    end
+
+    def visitor_name_migration
+      generated_migrations.find { |f| f.include?("add_visitor_name") }
+    end
+
+    before { run_generator }
+
+    it "gives the migration a valid timestamp-based filename" do
+      expect(File.basename(visitor_name_migration)).to match(/\A\d{14}_add_visitor_name\.rb\z/)
+    end
+
+    it "generates an AddVisitorName migration class" do
+      expect(File.read(visitor_name_migration)).to include("class AddVisitorName < ActiveRecord::Migration")
+    end
+
+    it "adds the name column to trackguard_visitors" do
+      expect(File.read(visitor_name_migration)).to include(":name")
+    end
   end
 end

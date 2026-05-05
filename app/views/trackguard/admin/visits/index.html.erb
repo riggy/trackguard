@@ -63,6 +63,7 @@
                           <%= hidden_field_tag :id, visitor.id %>
                           <%= f.submit "Flag", class: "tg-btn tg-btn--danger" %>
                           <%= f.text_field :flag_reason, placeholder: "Flag reason (optional)", class: "tg-input", autocomplete: "off" %>
+                          <%= f.text_field :name, placeholder: "Name (optional, auto-detected if blank)", class: "tg-input", autocomplete: "off" %>
                         <% end %>
                       <% end %>
                     </div>
@@ -86,6 +87,10 @@
                         <div class="tg-dl__row">
                           <span class="tg-dl__term">User agent</span>
                           <span class="tg-dl__def tg-dl__def--break"><%= visitor&.user_agent.presence || "—" %></span>
+                        </div>
+                        <div class="tg-dl__row">
+                          <span class="tg-dl__term">Name</span>
+                          <span class="tg-dl__def"><%= visitor&.name.presence || "—" %></span>
                         </div>
                         <div class="tg-dl__row">
                           <span class="tg-dl__term">Flag status</span>

@@ -12,5 +12,12 @@ module Trackguard
       end
       patterns.any? { |p| user_agent.to_s.downcase.include?(p.downcase) }
     end
+
+    def self.matching_pattern(user_agent)
+      patterns = Rails.cache.fetch(CACHE_KEY, expires_in: 10.minutes) do
+        pluck(:pattern)
+      end
+      patterns.find { |p| user_agent.to_s.downcase.include?(p.downcase) }
+    end
   end
 end

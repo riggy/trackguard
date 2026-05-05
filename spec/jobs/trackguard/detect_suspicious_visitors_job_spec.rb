@@ -268,6 +268,62 @@ RSpec.describe Trackguard::DetectSuspiciousVisitorsJob, type: :job do
     expect(v.reload.flagged_at).to be_nil
   end
 
+  # --- visitor name detection ---
+
+  context "visitor name detection" do
+    before { Rails.cache.delete(Trackguard::BlockedUserAgent::CACHE_KEY) }
+
+    it "sets name from a matching BlockedUserAgent pattern when flagged by minimal UA" do
+      create(:blocked_user_agent, pattern: "curl")
+      v = create(:visitor, user_agent: "curl")
+      create(:page_view, visitor: v)
+      run_job
+      expect(v.reload.name).to eq("curl")
+    end
+
+    it "leaves name nil when flagged by blank UA and no pattern matches" do
+      v = create(:visitor, user_agent: "")
+      create(:page_view, visitor: v)
+      run_job
+      expect(v.reload.name).to be_nil
+    end
+
+    it "sets name when a score-flagged visitor UA matches a BlockedUserAgent pattern" do
+      create(:blocked_user_agent, pattern: "HeadlessChrome")
+      v = create(:visitor, user_agent: "Mozilla/5.0 HeadlessChrome/120")
+      create_list(:page_view, 10, visitor: v, session_id: nil, referer: nil)
+      run_job
+      expect(v.reload.name).to eq("HeadlessChrome")
+    end
+
+    it "leaves name nil when no BlockedUserAgent pattern matches" do
+      v = create(:visitor, user_agent: "Mozilla/5.0 (Windows NT 10.0)")
+      create_list(:page_view, 10, visitor: v, session_id: nil, referer: nil)
+      run_job
+      expect(v.reload.name).to be_nil
+    end
+
+    it "sets name when hard-threshold visitor UA matches a pattern" do
+      create(:blocked_user_agent, pattern: "Scrapy")
+      v = create(:visitor, user_agent: "Scrapy/2.5.1 (+https://scrapy.org)")
+      create_list(:page_view, 50, visitor: v)
+      run_job
+      expect(v.reload.name).to eq("Scrapy")
+    end
+
+    it "sets name for cross-visitor trace_id sharing when UA matches a pattern" do
+      create(:blocked_user_agent, pattern: "axios")
+      shared = SecureRandom.hex(8)
+      v1 = create(:visitor, user_agent: "axios/0.21.1")
+      v2 = create(:visitor, user_agent: "axios/0.21.1")
+      create(:page_view, visitor: v1, trace_id: shared)
+      create(:page_view, visitor: v2, trace_id: shared)
+      run_job
+      expect(v1.reload.name).to eq("axios")
+      expect(v2.reload.name).to eq("axios")
+    end
+  end
+
   # --- structural: no session, no referrer, single root hit ---
 
   it "does not flag visitor with fewer than MIN_VIEWS root-only hits (below threshold)" do
