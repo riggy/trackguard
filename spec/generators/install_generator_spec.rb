@@ -29,9 +29,9 @@ RSpec.describe Trackguard::InstallGenerator do
     Dir[File.join(destination, "db", "migrate", "*.rb")].first
   end
 
-  it "creates exactly two migration files" do
+  it "creates exactly one migration file" do
     run_generator
-    expect(Dir[File.join(destination, "db", "migrate", "*.rb")].length).to eq(2)
+    expect(Dir[File.join(destination, "db", "migrate", "*.rb")].length).to eq(1)
   end
 
   it "gives the migration a valid timestamp-based filename" do
@@ -59,14 +59,17 @@ RSpec.describe Trackguard::InstallGenerator do
     expect(File.read(generated_migration)).to include("add_index :trackguard_visitors, :ip, unique: true")
   end
 
-  it "creates the page_views table with the expected columns" do
+  it "creates the visits table with the expected columns" do
     run_generator
     content = File.read(generated_migration)
-    expect(content).to include("create_table :trackguard_page_views")
+    expect(content).to include("create_table :trackguard_visits")
+    expect(content).to include(":type")
     expect(content).to include(":path")
     expect(content).to include(":session_id")
     expect(content).to include(":trace_id")
     expect(content).to include(":source")
+    expect(content).to include(":block_reason")
+    expect(content).to include(":http_method")
     expect(content).to include(":visitor")
   end
 
