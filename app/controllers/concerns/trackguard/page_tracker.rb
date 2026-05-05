@@ -29,7 +29,8 @@ module Trackguard
         referer: request.referer,
         session_id: session.id.to_s,
         trace_id: @trace_id,
-        source: extract_source
+        source: extract_source,
+        http_method: request.request_method
       )
     end
 

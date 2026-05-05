@@ -76,6 +76,18 @@ RSpec.describe Trackguard::PageViewRecorder do
     end.to have_enqueued_job(Trackguard::TrackPageViewJob).with(hash_including(source: nil))
   end
 
+  it "passes http_method to TrackPageViewJob when provided" do
+    expect do
+      call(http_method: "GET")
+    end.to have_enqueued_job(Trackguard::TrackPageViewJob).with(hash_including(http_method: "GET"))
+  end
+
+  it "passes nil http_method when not provided" do
+    expect do
+      call
+    end.to have_enqueued_job(Trackguard::TrackPageViewJob).with(hash_including(http_method: nil))
+  end
+
   context "when user agent is on the blocked list" do
     before { create(:blocked_user_agent, pattern: "AhrefsBot") }
 

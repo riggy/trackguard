@@ -15,6 +15,10 @@ module Trackguard
       migration_template "create_trackguard_tables.rb", "db/migrate/create_trackguard_tables.rb"
     end
 
+    def create_visits_migration_file
+      migration_template "add_trackguard_visits.rb", "db/migrate/add_trackguard_visits.rb"
+    end
+
     def print_next_steps
       say "\nNext steps:", :green
       say "  1. rails db:migrate"

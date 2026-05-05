@@ -9,7 +9,8 @@ module Trackguard
         session_id: session.id.to_s,
         trace_id: params[:trace_id].to_s.presence,
         source: params[:ref].to_s.strip.downcase.first(64).presence,
-        initial: params[:initial] == true
+        initial: params[:initial] == true,
+        http_method: "GET"
       )
 
       head :no_content

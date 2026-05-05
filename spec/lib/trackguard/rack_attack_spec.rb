@@ -122,6 +122,48 @@ RSpec.describe Trackguard::RackAttack do
     end
   end
 
+  describe "notification subscriber" do
+    before { described_class.configure }
+    after do
+      sub = described_class.instance_variable_get(:@subscribe_to_blocked_requests)
+      ActiveSupport::Notifications.unsubscribe(sub) if sub
+      described_class.instance_variable_set(:@subscribe_to_blocked_requests, nil)
+      Rack::Attack.clear_configuration
+    end
+
+    def blocked_env(ip: "1.2.3.4", user_agent: "ScannerBot/1.0", rule: "trackguard/block known scanners")
+      {
+        "REMOTE_ADDR" => ip,
+        "HTTP_USER_AGENT" => user_agent,
+        "REQUEST_METHOD" => "GET",
+        "PATH_INFO" => "/secret",
+        "rack.attack.match_type" => :blocklist,
+        "rack.attack.matched" => rule
+      }
+    end
+
+    it "enqueues TrackBlockedRequestJob when a blocklist rule fires" do
+      req = Rack::Attack::Request.new(blocked_env)
+      expect do
+        ActiveSupport::Notifications.instrument("rack.attack", request: req)
+      end.to have_enqueued_job(Trackguard::TrackBlockedRequestJob).with(
+        ip: "1.2.3.4",
+        user_agent: "ScannerBot/1.0",
+        path: "/secret",
+        http_method: "GET",
+        block_reason: "trackguard/block known scanners"
+      )
+    end
+
+    it "does not enqueue a job for throttle events" do
+      env = blocked_env.merge("rack.attack.match_type" => :throttle)
+      req = Rack::Attack::Request.new(env)
+      expect do
+        ActiveSupport::Notifications.instrument("rack.attack", request: req)
+      end.not_to have_enqueued_job(Trackguard::TrackBlockedRequestJob)
+    end
+  end
+
   describe "throttle configuration" do
     after do
       Rack::Attack.clear_configuration

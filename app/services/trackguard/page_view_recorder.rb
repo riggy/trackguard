@@ -8,15 +8,17 @@ module Trackguard
       bot|crawl|spider
     /ix
 
-    def initialize(path:, ip:, user_agent:, referer:, session_id:, trace_id:, source: nil, initial: false)
-      @path       = path.to_s
-      @ip         = ip
-      @user_agent = user_agent.to_s
-      @referer    = referer
-      @session_id = session_id
-      @trace_id   = trace_id
-      @source     = source.presence
-      @initial    = initial
+    def initialize(path:, ip:, user_agent:, referer:, session_id:, trace_id:, source: nil, initial: false,
+                   http_method: nil)
+      @path        = path.to_s
+      @ip          = ip
+      @user_agent  = user_agent.to_s
+      @referer     = referer
+      @session_id  = session_id
+      @trace_id    = trace_id
+      @source      = source.presence
+      @initial     = initial
+      @http_method = http_method
     end
 
     def call
@@ -32,7 +34,8 @@ module Trackguard
         session_id: @session_id,
         trace_id: @trace_id,
         source: @source,
-        initial: @initial
+        initial: @initial,
+        http_method: @http_method
       )
     end
   end

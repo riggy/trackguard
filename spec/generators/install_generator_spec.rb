@@ -29,9 +29,9 @@ RSpec.describe Trackguard::InstallGenerator do
     Dir[File.join(destination, "db", "migrate", "*.rb")].first
   end
 
-  it "creates exactly one migration file" do
+  it "creates exactly two migration files" do
     run_generator
-    expect(Dir[File.join(destination, "db", "migrate", "*.rb")].length).to eq(1)
+    expect(Dir[File.join(destination, "db", "migrate", "*.rb")].length).to eq(2)
   end
 
   it "gives the migration a valid timestamp-based filename" do

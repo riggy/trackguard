@@ -2,7 +2,8 @@ module Trackguard
   class TrackPageViewJob < ApplicationJob
     queue_as :default
 
-    def perform(path:, ip:, user_agent:, referer:, session_id: nil, trace_id: nil, source: nil, initial: false)
+    def perform(path:, ip:, user_agent:, referer:, session_id: nil, trace_id: nil, source: nil, initial: false,
+                http_method: nil)
       hashed_session_id = Digest::SHA256.hexdigest(session_id) if session_id.present?
 
       visitor = Visitor.find_or_create_by!(ip: ip) do |v|
@@ -22,7 +23,7 @@ module Trackguard
         end
       end
 
-      PageView.create_with(source:, referer:)
+      PageView.create_with(source:, referer:, http_method:)
               .find_or_create_by!(path:, user_agent:, session_id: hashed_session_id, trace_id:, visitor:)
     end
   end

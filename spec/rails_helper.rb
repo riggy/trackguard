@@ -20,21 +20,26 @@ ActiveRecord::Schema.define do
 
   add_index :trackguard_visitors, :ip, unique: true
 
-  create_table :trackguard_page_views, force: :cascade do |t|
+  create_table :trackguard_visits, force: :cascade do |t|
+    t.string   :type
     t.string   :path, null: false
     t.string   :user_agent
     t.string   :referer
     t.string   :session_id
     t.string   :trace_id
     t.string   :source
+    t.string   :block_reason
+    t.string   :http_method
     t.bigint   :visitor_id, null: false
     t.datetime :created_at, null: false
   end
 
-  add_index :trackguard_page_views, :path
-  add_index :trackguard_page_views, :created_at
-  add_index :trackguard_page_views, :source
-  add_index :trackguard_page_views, :visitor_id
+  add_index :trackguard_visits, :type
+  add_index :trackguard_visits, :path
+  add_index :trackguard_visits, :created_at
+  add_index :trackguard_visits, :source
+  add_index :trackguard_visits, :block_reason
+  add_index :trackguard_visits, :visitor_id
 
   create_table :trackguard_whitelisted_ips, force: :cascade do |t|
     t.string   :ip,         null: false

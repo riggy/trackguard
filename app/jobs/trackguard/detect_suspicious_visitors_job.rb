@@ -103,7 +103,7 @@ module Trackguard
         .unflagged
         .joins("LEFT OUTER JOIN trackguard_whitelisted_ips wi ON wi.visitor_id = trackguard_visitors.id")
         .joins(:page_views)
-        .where(trackguard_page_views: { trace_id: shared, created_at: cutoff.. })
+        .where(trackguard_visits: { trace_id: shared, created_at: cutoff.. })
         .where("wi.id IS NULL OR wi.expires_at <= ?", Time.current)
         .distinct
         .each do |visitor|
