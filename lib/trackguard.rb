@@ -3,6 +3,8 @@
 require "trackguard/version"
 require "trackguard/engine"
 require "trackguard/rack_attack"
+require "trackguard/adapters/base"
+require "trackguard/adapters/local"
 
 module Trackguard
   class << self
@@ -35,6 +37,24 @@ module Trackguard
 
     def throttle_period
       @throttle_period ||= 60
+    end
+
+    def adapter
+      @adapter ||= Trackguard::Adapters::Local.new
+    end
+
+    def adapter=(value)
+      @adapter = resolve_adapter(value)
+    end
+
+    private
+
+    def resolve_adapter(value)
+      case value
+      when Symbol then Trackguard::Adapters.const_get(value.to_s.camelize).new
+      when Class  then value.new
+      else             value
+      end
     end
   end
 end

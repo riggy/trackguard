@@ -5,20 +5,22 @@ require "rack/attack"
 module Trackguard
   module RackAttack
     def self.configure
+      adapter = Trackguard.adapter
+
       ::Rack::Attack.safelist("trackguard/allow local") do |req|
         [ "127.0.0.1", "::1" ].include?(req.ip)
       end
 
       ::Rack::Attack.safelist("trackguard/allow whitelisted ips") do |req|
-        Trackguard::WhitelistedIp.whitelisted?(req.ip)
+        adapter.whitelisted_ip?(req.ip)
       end
 
       ::Rack::Attack.blocklist("trackguard/block known scanners") do |req|
-        Trackguard::BlockedUserAgent.blocked?(req.user_agent)
+        adapter.blocked_user_agent?(req.user_agent)
       end
 
       ::Rack::Attack.blocklist("trackguard/flagged visitors") do |req|
-        Trackguard::Visitor.flagged?(req.ip)
+        adapter.flagged_visitor?(req.ip)
       end
 
       ::Rack::Attack.throttle(
@@ -27,15 +29,15 @@ module Trackguard
         period: Trackguard.throttle_period, &:ip
       )
 
-      subscribe_to_blocked_requests
+      subscribe_to_blocked_requests(adapter)
     end
 
-    def self.subscribe_to_blocked_requests
+    def self.subscribe_to_blocked_requests(adapter)
       @subscribe_to_blocked_requests ||= ActiveSupport::Notifications.subscribe("rack.attack") do |*, payload|
         req = payload[:request]
         next unless req.env["rack.attack.match_type"] == :blocklist
 
-        Trackguard::TrackBlockedRequestJob.perform_later(
+        adapter.track_blocked_request(
           ip: req.ip,
           user_agent: req.user_agent.to_s,
           path: req.path,

@@ -1,13 +1,5 @@
 module Trackguard
   class PageViewRecorder < ApplicationService
-    BOT_REGEX = /
-      Googlebot|Bingbot|Slurp|DuckDuckBot|Baidu|YandexBot|
-      facebookexternalhit|Twitterbot|LinkedInBot|
-      curl|wget|python-requests|python-urllib|
-      Go-http-client|libwww|Java|Ruby|
-      bot|crawl|spider
-    /ix
-
     def initialize(path:, ip:, user_agent:, referer:, session_id:, trace_id:, source: nil, initial: false,
                    http_method: nil)
       @path        = path.to_s
@@ -22,11 +14,11 @@ module Trackguard
     end
 
     def call
-      return if BOT_REGEX.match?(@user_agent)
-      return if BlockedUserAgent.blocked?(@user_agent)
+      adapter = Trackguard.adapter
+      return if adapter.blocked_user_agent?(@user_agent)
       return if @path.blank? || @path.start_with?("/admin")
 
-      TrackPageViewJob.perform_later(
+      adapter.track_page_view(
         path: @path,
         ip: @ip,
         user_agent: @user_agent,

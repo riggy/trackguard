@@ -28,18 +28,6 @@ RSpec.describe Trackguard::PageViewRecorder do
                                                                 ))
   end
 
-  it "does not enqueue job for Googlebot" do
-    expect do
-      call(user_agent: "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)")
-    end.not_to have_enqueued_job
-  end
-
-  it "does not enqueue job for curl" do
-    expect do
-      call(user_agent: "curl/7.88.1")
-    end.not_to have_enqueued_job
-  end
-
   it "does not enqueue job for admin path" do
     expect do
       call(path: "/admin/posts")
@@ -89,7 +77,10 @@ RSpec.describe Trackguard::PageViewRecorder do
   end
 
   context "when user agent is on the blocked list" do
-    before { create(:blocked_user_agent, pattern: "AhrefsBot") }
+    before do
+      Rails.cache.delete(Trackguard::BlockedUserAgent::CACHE_KEY)
+      create(:blocked_user_agent, pattern: "AhrefsBot")
+    end
 
     it "does not enqueue for a matching user agent" do
       expect do

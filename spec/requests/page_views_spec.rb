@@ -16,16 +16,6 @@ RSpec.describe "POST /page_views", type: :request do
     expect { post_page_view }.to have_enqueued_job(Trackguard::TrackPageViewJob)
   end
 
-  it "does not enqueue a job for a bot user agent" do
-    expect do
-      post_page_view(user_agent: "Googlebot/2.1")
-    end.not_to have_enqueued_job
-  end
-
-  it "still returns 204 for a bot" do
-    post_page_view(user_agent: "Googlebot/2.1")
-    expect(response).to have_http_status(:no_content)
-  end
 
   it "passes ref param as source" do
     expect do
