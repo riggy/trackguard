@@ -16,7 +16,6 @@ RSpec.describe "POST /page_views", type: :request do
     expect { post_page_view }.to have_enqueued_job(Trackguard::TrackPageViewJob)
   end
 
-
   it "passes ref param as source" do
     expect do
       post_page_view(params: { ref: "twitter" })
