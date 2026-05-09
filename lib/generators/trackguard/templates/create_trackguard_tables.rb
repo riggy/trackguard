@@ -2,6 +2,7 @@ class CreateTrackguardTables < ActiveRecord::Migration[<%= ActiveRecord::Migrati
   def change
     create_table :trackguard_visitors do |t|
       t.string   :ip
+      t.string   :name
       t.string   :user_agent
       t.datetime :first_seen_at, null: false
       t.datetime :last_seen_at,  null: false
