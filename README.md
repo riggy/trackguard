@@ -6,12 +6,14 @@ A Rails Engine gem for visitor analytics and page view tracking. Designed to be 
 
 - Client-side page view tracking via a Stimulus controller (Turbo/SPA-aware)
 - Server-side tracking via a concern mixin
-- Bot filtering (Googlebot, Bingbot, social bots, curl, wget, and more)
-- Visitor deduplication by IP with first/last seen timestamps
+- Bot filtering via a database-driven blocked user agent list
+- Automatic rate limiting and request blocking via `rack-attack`
+- Suspicious visitor detection (nightly background job)
+- Visitor deduplication by IP with first/last seen timestamps, optional name detection
 - SPA deduplication via `trace_id`
 - Traffic source attribution (`ref` param → `utm_source` param → referrer)
-- Visitor flagging for admin review
-- Admin UI for reviewing visitors and page views
+- Visitor flagging and IP whitelisting for admin review
+- Admin UI for reviewing visitors, page views, and blocked requests
 
 ## Requirements
 
@@ -27,37 +29,90 @@ Add to your `Gemfile`:
 gem "trackguard"
 ```
 
-Mount the engine and copy migrations:
+Mount the engine in `config/routes.rb`:
 
 ```ruby
-# config/routes.rb
 mount Trackguard::Engine => "/"
 ```
 
+Run the install generator, then migrate and seed:
+
 ```bash
-rails trackguard:install:migrations
+rails generate trackguard:install
 rails db:migrate
+rails trackguard:seed_blocked_user_agents
+```
+
+The generator creates the database migration. `seed_blocked_user_agents` populates the
+`trackguard_blocked_user_agents` table with known bot and scanner patterns.
+
+## Configuration
+
+Create an initializer (e.g. `config/initializers/trackguard.rb`):
+
+```ruby
+Trackguard.configure do |config|
+  # Required: protect the admin UI. Called as a before_action.
+  config.authenticate_admin_with = -> { redirect_to root_path unless current_user&.admin? }
+
+  # Optional: link shown in admin header
+  config.back_url   = "/dashboard"
+  config.back_label = "Back to Dashboard"
+
+  # Optional: bearer token for API requests to /page_views
+  config.api_token = ENV["TRACKGUARD_API_TOKEN"]
+
+  # Optional: rack-attack throttle (default: 100 req / 60 sec per IP)
+  config.throttle_limit  = 100
+  config.throttle_period = 60
+end
 ```
 
 ## Usage
 
 ### Client-side tracking
 
-Add the Stimulus controller to your layout. It listens for `turbo:load` events and hash changes, then POSTs to `/page_views` automatically.
+Add `trackguard_meta_tags` to your layout `<head>` and attach the Stimulus controller to the
+element you want tracked (typically `<body>`):
+
+```erb
+<%# app/views/layouts/application.html.erb %>
+<head>
+  <%= trackguard_meta_tags %>
+</head>
+<body data-controller="page-tracker">
+  <%= yield %>
+</body>
+```
+
+The Stimulus controller listens for `turbo:load` events and hash changes, then POSTs to
+`/page_views` automatically. It reads the tracking URL and trace ID from the meta tags.
 
 ### Server-side tracking
 
-Include the concern in your `ApplicationController`:
+Include the concern in your `ApplicationController` and call `track_page_views`:
 
 ```ruby
-include Trackguard::PageTracker
+class ApplicationController < ActionController::Base
+  include Trackguard::PageTracker
+
+  track_page_views
+end
 ```
 
-Call `set_trace_id` in a `before_action` if you want server-rendered pages to share a trace ID with the client-side tracker.
+`track_page_views` accepts the same options as `after_action` (e.g. `only:`, `except:`).
+The concern also registers a `before_action :set_trace_id` automatically, so the meta tag
+rendered by `trackguard_meta_tags` will carry the same trace ID as the server-side record.
 
 ### Source attribution
 
-Traffic source is resolved in priority order: `ref` URL param → `utm_source` URL param → referrer meta tag.
+Traffic source is resolved in priority order: `ref` URL param → `utm_source` URL param → referrer.
+
+### Admin UI
+
+The admin interface is accessible at `/admin`. It covers traffic overviews, analytics, visit
+logs, and bot pattern management. Authentication is required — configure it via
+`authenticate_admin_with` in the initializer (see above).
 
 ## Architecture
 
@@ -66,24 +121,39 @@ Traffic source is resolved in priority order: `ref` URL param → `utm_source` U
 1. **Frontend** — The Stimulus controller POSTs to `/page_views` with path, trace ID, session ID, and referral source.
 2. **Controller** — `PageViewsController#create` delegates to `PageViewRecorder`, which filters bots and admin paths, then enqueues `TrackPageViewJob`.
 3. **Background job** — `TrackPageViewJob` finds-or-creates a `Visitor` by IP, then creates a `PageView` record.
+4. **Rack-attack** — Requests from flagged visitors or known scanners are blocked at middleware level; `TrackBlockedRequestJob` records them as `BlockedRequest` visits.
 
 ### Models
 
-- **`Visitor`** — Unique visitor identified by IP address. Has `first_seen_at`, `last_seen_at`, and optional flagging fields (`flagged_at`, `flag_reason`, `flagged_by`).
-- **`PageView`** — Individual page visit with `path`, `referer`, `session_id`, `trace_id`, `source`, associated to a `Visitor`.
+- **`Visitor`** — Unique visitor identified by IP. Has `first_seen_at`, `last_seen_at`, `name`, and flagging fields (`flagged_at`, `flag_reason`, `flagged_by`).
+- **`Visit`** — STI base class stored in `trackguard_visits`. Subclasses:
+  - **`PageView`** — A normal page visit with `path`, `referer`, `session_id`, `trace_id`, `source`, `http_method`.
+  - **`BlockedRequest`** — A request blocked by rack-attack, with `block_reason`.
+- **`BlockedUserAgent`** — Database-driven bot/scanner patterns used by rack-attack and `PageViewRecorder`.
+- **`WhitelistedIp`** — IPs exempt from blocking, with an `expires_at` timestamp.
 
 ### Key files
 
 | File | Purpose |
 |------|---------|
-| `lib/trackguard/engine.rb` | Rails Engine: registers migrations, configures importmap |
+| `lib/trackguard.rb` | Module-level configuration |
+| `lib/trackguard/engine.rb` | Rails Engine: importmap, asset precompile, rack-attack setup |
+| `lib/trackguard/rack_attack.rb` | Throttle, safelist, blocklist rules |
+| `lib/trackguard/adapters/local.rb` | Default adapter: DB models + background jobs |
 | `app/services/trackguard/page_view_recorder.rb` | Bot filtering, admin path exclusion, job dispatch |
-| `app/jobs/trackguard/track_page_view_job.rb` | Async visitor/page-view upsert logic |
-| `app/controllers/trackguard/page_views_controller.rb` | API endpoint for frontend tracker |
+| `app/jobs/trackguard/track_page_view_job.rb` | Async visitor/page-view upsert |
+| `app/jobs/trackguard/track_blocked_request_job.rb` | Async blocked request logging |
+| `app/jobs/trackguard/detect_suspicious_visitors_job.rb` | Nightly bot/suspicious visitor detection |
+| `app/controllers/trackguard/page_views_controller.rb` | `POST /page_views` endpoint |
+| `app/controllers/concerns/trackguard/page_tracker.rb` | Server-side tracking mixin |
+| `app/controllers/trackguard/admin/base_controller.rb` | Admin auth and layout |
+| `app/helpers/trackguard/application_helper.rb` | `trackguard_meta_tags` helper |
+| `app/assets/javascripts/controllers/page_tracker_controller.js` | Stimulus tracker |
 
 ### Namespacing
 
-All classes live under `Trackguard::`. The engine is non-isolated so routes stay unprefixed (`/page_views`). Models declare `self.table_name` explicitly to avoid migration churn.
+All classes live under `Trackguard::`. The engine is non-isolated so routes stay unprefixed
+(`/page_views`, `/admin`). Models declare `self.table_name` explicitly.
 
 ## License
 
