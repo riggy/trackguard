@@ -3,19 +3,21 @@ module Trackguard
     class DashboardsController < BaseController
       include Overridable
 
-      # rubocop:disable Metrics/AbcSize
       def show
-        @total_today  = page_view_scope.today.count
-        @total_week   = page_view_scope.this_week.count
-        @total_month  = page_view_scope.this_month.count
+        query = AnalyticsQuery.call(
+          scope: page_view_scope,
+          time_scope: page_view_scope.last_30,
+          limit: 5
+        )
 
-        @top_pages     = page_view_scope.last_30.group(:path).order("count_all DESC").limit(5).count
-        @top_referrers = page_view_scope.last_30.with_referrer.group(:referer).order("count_all DESC").limit(5).count
-        @top_sources   = page_view_scope.last_30.with_source.group(:source).order("count_all DESC").limit(5).count
-
-        @recent = page_view_scope.order(created_at: :desc).limit(20).includes(visitor: :whitelisted_ip)
+        @total_today   = query.totals[:today]
+        @total_week    = query.totals[:week]
+        @total_month   = query.totals[:month]
+        @top_pages     = query.top_pages
+        @top_referrers = query.top_referrers
+        @top_sources   = query.top_sources
+        @recent        = query.recent
       end
-      # rubocop:enable Metrics/AbcSize
     end
   end
 end

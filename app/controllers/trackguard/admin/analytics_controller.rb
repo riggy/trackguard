@@ -1,46 +1,25 @@
 module Trackguard
   module Admin
     class AnalyticsController < BaseController
+      include Overridable
+
       skip_before_action :verify_authenticity_token, if: :valid_api_token?
 
-      # rubocop:disable Metrics/AbcSize
       def show
-        @total_today  = PageView.today.count
-        @total_week   = PageView.this_week.count
-        @total_month  = PageView.this_month.count
-
-        base = time_scope
-        @top_pages     = base.group(:path).order("count_all DESC").limit(10).count
-        @top_referrers = base.with_referrer.group(:referer).order("count_all DESC").limit(10).count
-        @top_sources   = base.with_source.group(:source).order("count_all DESC").limit(10).count
-
-        @recent = visitor_filtered(
-          time_scope(PageView.order(created_at: :desc).limit(20).includes(visitor: :whitelisted_ip))
+        query = AnalyticsQuery.call(
+          scope: page_view_scope,
+          time_scope: apply_time_scope(page_view_scope),
+          limit: 10
         )
 
         render json: {
-          totals: { today: @total_today, week: @total_week, month: @total_month },
-          top_pages: @top_pages,
-          top_referrers: @top_referrers,
-          top_sources: @top_sources,
-          recent: @recent.map do |pv|
-            {
-              path: pv.path,
-              ip: pv.visitor&.ip,
-              flagged_at: pv.visitor.flagged_at,
-              flagged_by: pv.visitor.flagged_by,
-              whitelisted: pv.visitor.whitelisted_ip&.active? || false,
-              user_agent: pv.user_agent,
-              session_id: pv.session_id,
-              trace_id: pv.trace_id,
-              referer: pv.referer,
-              source: pv.source,
-              created_at: pv.created_at
-            }
-          end
+          totals: query.totals,
+          top_pages: query.top_pages,
+          top_referrers: query.top_referrers,
+          top_sources: query.top_sources,
+          recent: visitor_filtered(apply_time_scope(query.recent)).map { |view| serialize_page_view(view) }
         }
       end
-      # rubocop:enable Metrics/AbcSize
 
       private
 
@@ -50,7 +29,7 @@ module Trackguard
         super
       end
 
-      def time_scope(base = PageView.all)
+      def apply_time_scope(base)
         params[:since].present? ? base.where(created_at: parsed_since..) : base.last_30
       end
 
@@ -64,8 +43,8 @@ module Trackguard
 
       def visitor_filtered(scope)
         if params.key?(:flagged)
-          visitor_scope = cast_bool(params[:flagged]) ? Visitor.flagged : Visitor.unflagged
-          scope = scope.joins(:visitor).merge(visitor_scope)
+          flagged_scope = cast_bool(params[:flagged]) ? Visitor.flagged : Visitor.unflagged
+          scope = scope.joins(:visitor).merge(flagged_scope)
         end
         if params.key?(:whitelisted)
           scope = if cast_bool(params[:whitelisted])
@@ -79,6 +58,22 @@ module Trackguard
 
       def cast_bool(val)
         ActiveRecord::Type::Boolean.new.cast(val)
+      end
+
+      def serialize_page_view(view)
+        {
+          path: view.path,
+          ip: view.visitor&.ip,
+          flagged_at: view.visitor.flagged_at,
+          flagged_by: view.visitor.flagged_by,
+          whitelisted: view.visitor.whitelisted_ip&.active? || false,
+          user_agent: view.user_agent,
+          session_id: view.session_id,
+          trace_id: view.trace_id,
+          referer: view.referer,
+          source: view.source,
+          created_at: view.created_at
+        }
       end
     end
   end
