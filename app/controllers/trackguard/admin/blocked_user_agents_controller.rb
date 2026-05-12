@@ -12,7 +12,7 @@ module Trackguard
         Rails.cache.delete(BlockedUserAgent::CACHE_KEY)
         render json: { status: "ok", pattern: record.pattern }
       rescue ActionController::ParameterMissing, ActiveRecord::RecordInvalid => e
-        render json: { status: "error", message: e.message }, status: :unprocessable_entity
+        render json: { status: "error", message: e.message }, status: :unprocessable_content
       end
 
       private

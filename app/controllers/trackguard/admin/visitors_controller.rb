@@ -1,12 +1,14 @@
 module Trackguard
   module Admin
     class VisitorsController < BaseController
+      include Overridable
+
       skip_before_action :verify_authenticity_token, if: :valid_api_token?
       before_action :set_visitor
 
       rescue_from ActiveRecord::RecordNotFound do
         respond_to do |format|
-          format.html { redirect_to dashboard_path, alert: "Visitor not found." }
+          format.html { redirect_to after_action_path, alert: "Visitor not found." }
           format.json { render json: { error: "Visitor not found" }, status: :not_found }
         end
       end
@@ -20,13 +22,13 @@ module Trackguard
           name: params[:name].presence || BlockedUserAgent.matching_pattern(@visitor.user_agent)
         )
           respond_to do |format|
-            format.html { redirect_back_or_to dashboard_path }
+            format.html { redirect_back_or_to after_action_path }
             format.json { render json: { status: "ok", ip: @visitor.ip, flagged_at: @visitor.flagged_at } }
           end
         else
           respond_to do |format|
-            format.html { redirect_back_or_to dashboard_path, alert: @visitor.errors.full_messages.join(", ") }
-            format.json { render json: { errors: @visitor.errors.full_messages }, status: :unprocessable_entity }
+            format.html { redirect_back_or_to after_action_path, alert: @visitor.errors.full_messages.join(", ") }
+            format.json { render json: { errors: @visitor.errors.full_messages }, status: :unprocessable_content }
           end
         end
       end
@@ -35,7 +37,7 @@ module Trackguard
       def unflag
         @visitor.update!(flagged_at: nil, flag_reason: nil, flagged_by: nil)
         respond_to do |format|
-          format.html { redirect_back_or_to dashboard_path }
+          format.html { redirect_back_or_to after_action_path }
           format.json { render json: { status: "ok", ip: @visitor.ip } }
         end
       end
@@ -46,14 +48,6 @@ module Trackguard
         return if valid_api_token?
 
         super
-      end
-
-      def set_visitor
-        @visitor = if params[:ip].present?
-                     Visitor.find_by!(ip: params[:ip])
-                   else
-                     Visitor.find(params[:id])
-                   end
       end
     end
   end

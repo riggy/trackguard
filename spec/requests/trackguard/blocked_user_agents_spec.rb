@@ -44,7 +44,7 @@ RSpec.describe "Admin blocked user agents", type: :request do
 
     it "returns 422 when pattern param is missing" do
       post "/admin/blocked_user_agents", params: {}
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
       expect(JSON.parse(response.body)["status"]).to eq("error")
     end
 
