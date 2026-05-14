@@ -25,12 +25,7 @@
       </div>
     </div>
   </header>
-  <nav class="tg-nav">
-    <div class="tg-container">
-      <a href="<%= dashboard_path %>" class="tg-nav__link<%= ' tg-nav__link--active' if request.path == dashboard_path %>">Dashboard</a>
-      <a href="<%= visits_path %>" class="tg-nav__link<%= ' tg-nav__link--active' if request.path.start_with?(visits_path) %>">All Visits</a>
-    </div>
-  </nav>
+  <%= render "trackguard/admin/nav" %>
   <main class="tg-main">
     <div class="tg-container">
       <%= yield %>

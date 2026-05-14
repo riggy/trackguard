@@ -4,19 +4,4 @@
   <h1 class="tg-page-title">All Visits <span class="tg-page-title__count"><%= @total %></span></h1>
 </div>
 
-<div class="tg-panel">
-  <% if @visits.any? %>
-    <%= render "pagination" %>
-    <table class="tg-table">
-      <tbody>
-        <% @visits.each do |pv| %>
-          <%= render "trackguard/admin/visit_row", pv: pv %>
-        <% end %>
-      </tbody>
-    </table>
-
-    <%= render "pagination" %>
-  <% else %>
-    <p class="tg-empty">No visits recorded yet.</p>
-  <% end %>
-</div>
+<%= render "trackguard/admin/visits/body" %>

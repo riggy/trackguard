@@ -1,0 +1,27 @@
+<div class="tg-panel">
+  <h2 class="tg-panel__heading">
+    <%= title %><% if local_assigns[:subtitle] %> <span class="tg-panel__sub"><%= subtitle %></span><% end %>
+  </h2>
+  <% if rows.any? %>
+    <table class="tg-table">
+      <% if local_assigns[:row_label] %>
+        <thead>
+          <tr>
+            <th class="tg-th"><%= row_label %></th>
+            <th class="tg-th tg-th--right">Views</th>
+          </tr>
+        </thead>
+      <% end %>
+      <tbody>
+        <% rows.each do |label, count| %>
+          <tr>
+            <td class="tg-td"><%= label %></td>
+            <td class="tg-td tg-td--num"><%= count %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="tg-empty"><%= local_assigns.fetch(:empty_message, "No data yet.") %></p>
+  <% end %>
+</div>

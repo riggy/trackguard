@@ -15,9 +15,9 @@
 
 /* ── Layout ────────────────────────────────────────────────────────── */
 .tg-container {
-  max-width: 1100px;
+  max-width: var(--tg-container-max-width, 1100px);
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 var(--tg-container-padding, 1.5rem);
 }
 
 /* ── Header ────────────────────────────────────────────────────────── */

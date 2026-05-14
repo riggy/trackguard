@@ -1,9 +1,10 @@
+<% page_url = local_assigns.fetch(:page_url) { ->(n) { visits_path(page: n) } } %>
 <% if @pages > 1 %>
   <% window_start = [ @page - 1, 2 ].max %>
   <% window_end   = [ @page + 1, @pages - 1 ].min %>
   <nav class="tg-pagination" aria-label="Pagination">
     <% if @page > 1 %>
-      <a href="<%= visits_path(page: @page - 1) %>" class="tg-pagination__link">← Prev</a>
+      <a href="<%= page_url.call(@page - 1) %>" class="tg-pagination__link">← Prev</a>
     <% else %>
       <span class="tg-pagination__link tg-pagination__link--disabled">← Prev</span>
     <% end %>
@@ -12,7 +13,7 @@
     <% if @page == 1 %>
       <span class="tg-pagination__link tg-pagination__link--active">1</span>
     <% else %>
-      <a href="<%= visits_path(page: 1) %>" class="tg-pagination__link">1</a>
+      <a href="<%= page_url.call(1) %>" class="tg-pagination__link">1</a>
     <% end %>
 
     <% if window_start > 2 %>
@@ -24,7 +25,7 @@
       <% if n == @page %>
         <span class="tg-pagination__link tg-pagination__link--active"><%= n %></span>
       <% else %>
-        <a href="<%= visits_path(page: n) %>" class="tg-pagination__link"><%= n %></a>
+        <a href="<%= page_url.call(n) %>" class="tg-pagination__link"><%= n %></a>
       <% end %>
     <% end %>
 
@@ -36,11 +37,11 @@
     <% if @page == @pages %>
       <span class="tg-pagination__link tg-pagination__link--active"><%= @pages %></span>
     <% else %>
-      <a href="<%= visits_path(page: @pages) %>" class="tg-pagination__link"><%= @pages %></a>
+      <a href="<%= page_url.call(@pages) %>" class="tg-pagination__link"><%= @pages %></a>
     <% end %>
 
     <% if @page < @pages %>
-      <a href="<%= visits_path(page: @page + 1) %>" class="tg-pagination__link">Next →</a>
+      <a href="<%= page_url.call(@page + 1) %>" class="tg-pagination__link">Next →</a>
     <% else %>
       <span class="tg-pagination__link tg-pagination__link--disabled">Next →</span>
     <% end %>

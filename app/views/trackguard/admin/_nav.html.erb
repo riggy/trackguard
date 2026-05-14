@@ -1,0 +1,7 @@
+<nav class="tg-nav">
+  <div class="tg-container">
+    <% trackguard_nav_links.each do |link| %>
+      <a href="<%= link[:url] %>" class="tg-nav__link<%= ' tg-nav__link--active' if link[:active] %>"><%= link[:label] %></a>
+    <% end %>
+  </div>
+</nav>

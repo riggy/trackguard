@@ -1,0 +1,38 @@
+<%# Summary cards %>
+<div class="tg-stats">
+  <div class="tg-stat">
+    <p class="tg-stat__label">Today</p>
+    <p class="tg-stat__value"><%= @total_today %></p>
+  </div>
+  <div class="tg-stat">
+    <p class="tg-stat__label">This Week</p>
+    <p class="tg-stat__value"><%= @total_week %></p>
+  </div>
+  <div class="tg-stat">
+    <p class="tg-stat__label">This Month</p>
+    <p class="tg-stat__value"><%= @total_month %></p>
+  </div>
+</div>
+
+<%# Top pages / referrers / sources grid %>
+<div class="tg-panels">
+  <%= render "trackguard/admin/stats_panel", title: "Top Pages",     subtitle: "last 30 days", rows: @top_pages,     row_label: "Path" %>
+  <%= render "trackguard/admin/stats_panel", title: "Top Referrers", subtitle: "last 30 days", rows: @top_referrers, row_label: "Referrer" %>
+  <%= render "trackguard/admin/stats_panel", title: "Top Sources",   subtitle: "last 30 days", rows: @top_sources,   row_label: "Source" %>
+</div>
+
+<%# Recent visits %>
+<div class="tg-panel">
+  <h2 class="tg-panel__heading">Recent Visits</h2>
+  <% if @recent.any? %>
+    <table class="tg-table">
+      <tbody>
+        <% @recent.each do |pv| %>
+          <%= render "trackguard/admin/visit_row", pv: pv %>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="tg-empty">No visits recorded yet.</p>
+  <% end %>
+</div>

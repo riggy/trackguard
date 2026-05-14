@@ -1,0 +1,15 @@
+<div class="tg-panel">
+  <% if @visits.any? %>
+    <%= render "trackguard/admin/visits/pagination", page_url: trackguard_visits_page_url %>
+    <table class="tg-table">
+      <tbody>
+        <% @visits.each do |pv| %>
+          <%= render "trackguard/admin/visit_row", pv: pv %>
+        <% end %>
+      </tbody>
+    </table>
+    <%= render "trackguard/admin/visits/pagination", page_url: trackguard_visits_page_url %>
+  <% else %>
+    <p class="tg-empty">No visits recorded yet.</p>
+  <% end %>
+</div>

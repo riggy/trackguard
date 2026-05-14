@@ -31,25 +31,31 @@
       </summary>
       <div class="tg-detail">
         <% if visitor %>
+          <% _actions = trackguard_visit_row_actions(visitor) %>
           <div class="tg-detail__actions">
             <% if whitelisted %>
-              <%= button_to "Remove from whitelist", unwhitelist_visitor_path,
-                    params: { id: visitor.id },
-                    method: :patch,
+              <%= button_to "Remove from whitelist", _actions[:unwhitelist][:url],
+                    method: _actions[:unwhitelist][:method],
+                    params: _actions[:unwhitelist][:params],
                     class: "tg-btn tg-btn--ghost",
                     data: { confirm: "Remove whitelist entry for #{visitor.ip}?" } %>
             <% else %>
-              <%= button_to "Whitelist", whitelist_visitor_path,
-                    params: { id: visitor.id },
-                    method: :patch,
+              <%= button_to "Whitelist", _actions[:whitelist][:url],
+                    method: _actions[:whitelist][:method],
+                    params: _actions[:whitelist][:params],
                     class: "tg-btn tg-btn--whitelist",
                     data: { confirm: "Whitelist #{visitor.ip} for 7 days?" } %>
             <% end %>
             <% if flagged %>
-              <%= button_to "Unflag", unflag_visitor_path, params: { id: visitor.id }, method: :patch, class: "tg-btn tg-btn--ghost" %>
+              <%= button_to "Unflag", _actions[:unflag][:url],
+                    method: _actions[:unflag][:method],
+                    params: _actions[:unflag][:params],
+                    class: "tg-btn tg-btn--ghost" %>
             <% else %>
-              <%= form_with url: flag_visitor_path, method: :patch, class: "tg-flag-form" do |f| %>
-                <%= hidden_field_tag :id, visitor.id %>
+              <%= form_with url: _actions[:flag][:url], method: _actions[:flag][:method], class: "tg-flag-form" do |f| %>
+                <% (_actions[:flag][:params] || {}).each do |k, v| %>
+                  <%= hidden_field_tag k, v %>
+                <% end %>
                 <%= f.submit "Flag", class: "tg-btn tg-btn--danger" %>
                 <%= f.text_field :flag_reason, placeholder: "Flag reason (optional)", class: "tg-input", autocomplete: "off" %>
                 <%= f.text_field :name, placeholder: "Name (optional, auto-detected if blank)", class: "tg-input", autocomplete: "off" %>
