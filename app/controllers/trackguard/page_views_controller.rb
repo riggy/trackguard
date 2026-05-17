@@ -1,7 +1,7 @@
 module Trackguard
   class PageViewsController < ApplicationController
     def create
-      PageViewRecorder.call(
+      Trackguard.adapter.track_page_view(
         path: params[:path].to_s,
         ip: request.remote_ip,
         user_agent: request.user_agent.to_s,

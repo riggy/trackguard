@@ -15,7 +15,20 @@ module Trackguard
         Visitor.flagged?(ip)
       end
 
-      def track_page_view(path:, ip:, user_agent:, referer:, session_id:, trace_id:, source:, initial:, http_method:)
+      def track_blocked_request(ip:, user_agent:, path:, http_method:, block_reason:)
+        TrackBlockedRequestJob.perform_later(
+          ip: ip,
+          user_agent: user_agent,
+          path: path,
+          http_method: http_method,
+          block_reason: block_reason
+        )
+      end
+
+      protected
+
+      def perform_track_page_view(path:, ip:, user_agent:, referer:, session_id:, trace_id:, source:, initial:,
+                                  http_method:)
         TrackPageViewJob.perform_later(
           path: path,
           ip: ip,
@@ -26,16 +39,6 @@ module Trackguard
           source: source,
           initial: initial,
           http_method: http_method
-        )
-      end
-
-      def track_blocked_request(ip:, user_agent:, path:, http_method:, block_reason:)
-        TrackBlockedRequestJob.perform_later(
-          ip: ip,
-          user_agent: user_agent,
-          path: path,
-          http_method: http_method,
-          block_reason: block_reason
         )
       end
     end

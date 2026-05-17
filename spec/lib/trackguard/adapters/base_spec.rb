@@ -9,7 +9,7 @@ RSpec.describe Trackguard::Adapters::Base do
   it { expect { adapter.whitelisted_ip?("1.2.3.4") }.to raise_error(NotImplementedError) }
   it { expect { adapter.flagged_visitor?("1.2.3.4") }.to raise_error(NotImplementedError) }
 
-  it do
+  it "raises NotImplementedError from track_page_view (abstract subclass methods unimplemented)" do
     expect do
       adapter.track_page_view(
         path: "/", ip: "1.2.3.4", user_agent: "Mozilla", referer: nil,

@@ -8,7 +8,7 @@ require "trackguard/adapters/local"
 
 module Trackguard
   class << self
-    attr_writer :authenticate_admin_with, :admin_layout, :back_url, :back_label, :api_token, :throttle_limit,
+    attr_writer :authenticate_admin_with, :admin_layout, :admin_path, :back_label, :api_token, :throttle_limit,
                 :throttle_period
 
     def authenticate_admin_with
@@ -19,8 +19,8 @@ module Trackguard
       @admin_layout ||= "trackguard/admin"
     end
 
-    def back_url
-      @back_url ||= "/admin"
+    def admin_path
+      @admin_path ||= "/admin"
     end
 
     def back_label

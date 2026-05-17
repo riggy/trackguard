@@ -22,7 +22,7 @@ module Trackguard
       return unless request.get? || request.head?
       return unless request.format.html?
 
-      PageViewRecorder.call(
+      Trackguard.adapter.track_page_view(
         path: request.path,
         ip: request.remote_ip,
         user_agent: request.user_agent.to_s,
@@ -30,6 +30,7 @@ module Trackguard
         session_id: session.id.to_s,
         trace_id: @trace_id,
         source: extract_source,
+        initial: false,
         http_method: request.request_method
       )
     end

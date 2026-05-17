@@ -51,18 +51,55 @@ RSpec.describe Trackguard::Adapters::Local do
   end
 
   describe "#track_page_view" do
+    let(:base_params) do
+      {
+        path: "/blog", ip: "1.2.3.4", user_agent: "Mozilla/5.0",
+        referer: "https://example.com", session_id: "abc123",
+        trace_id: "trace-xyz", source: nil, initial: false, http_method: "GET"
+      }
+    end
+
+    def track(**overrides)
+      adapter.track_page_view(**base_params, **overrides)
+    end
+
     it "enqueues TrackPageViewJob with the given arguments" do
-      expect do
-        adapter.track_page_view(
-          path: "/posts", ip: "1.2.3.4", user_agent: "Mozilla/5.0",
-          referer: "https://example.com", session_id: "abc", trace_id: "xyz",
-          source: "linkedin", initial: true, http_method: "GET"
-        )
-      end.to have_enqueued_job(Trackguard::TrackPageViewJob).with(
-        path: "/posts", ip: "1.2.3.4", user_agent: "Mozilla/5.0",
-        referer: "https://example.com", session_id: "abc", trace_id: "xyz",
-        source: "linkedin", initial: true, http_method: "GET"
+      expect { track }.to have_enqueued_job(Trackguard::TrackPageViewJob).with(
+        path: "/blog", ip: "1.2.3.4", user_agent: "Mozilla/5.0",
+        referer: "https://example.com", session_id: "abc123",
+        trace_id: "trace-xyz", source: nil, initial: false, http_method: "GET"
       )
+    end
+
+    it "does not enqueue for an admin path" do
+      expect { track(path: "/admin/posts") }.not_to have_enqueued_job
+    end
+
+    it "does not enqueue for a blank path" do
+      expect { track(path: "") }.not_to have_enqueued_job
+    end
+
+    it "does not enqueue for a nil path" do
+      expect { track(path: nil) }.not_to have_enqueued_job
+    end
+
+    context "when user agent is on the blocked list" do
+      before do
+        Rails.cache.delete(Trackguard::BlockedUserAgent::CACHE_KEY)
+        create(:blocked_user_agent, pattern: "AhrefsBot")
+      end
+
+      it "does not enqueue for a matching user agent" do
+        expect { track(user_agent: "AhrefsBot/7.0") }.not_to have_enqueued_job
+      end
+
+      it "does not enqueue for a case-insensitive match" do
+        expect { track(user_agent: "ahrefsbot/7.0") }.not_to have_enqueued_job
+      end
+
+      it "still enqueues for a non-blocked user agent" do
+        expect { track(user_agent: "Mozilla/5.0 Chrome/124") }.to have_enqueued_job(Trackguard::TrackPageViewJob)
+      end
     end
   end
 
