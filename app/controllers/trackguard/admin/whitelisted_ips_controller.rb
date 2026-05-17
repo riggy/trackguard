@@ -48,6 +48,18 @@ module Trackguard
 
       private
 
+      def set_visitor
+        if action_name == "create" && params[:ip].present?
+          now = Time.current
+          @visitor = visitor_scope.find_or_create_by!(ip: params[:ip]) do |v|
+            v.first_seen_at = now
+            v.last_seen_at  = now
+          end
+        else
+          super
+        end
+      end
+
       def authenticate_admin!
         return if valid_api_token?
 

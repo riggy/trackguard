@@ -38,6 +38,13 @@ RSpec.describe "Admin whitelist actions", type: :request do
       patch "/admin/visitors/whitelist", params: { id: visitor.id }
       expect(response).to have_http_status(:redirect)
     end
+
+    it "creates a visitor record when whitelisting a new IP with no prior visits" do
+      new_ip = "10.0.0.99"
+      expect { patch "/admin/visitors/whitelist", params: { ip: new_ip } }
+        .to change(Trackguard::Visitor, :count).by(1)
+      expect(Trackguard::WhitelistedIp.active.exists?(ip: new_ip)).to be true
+    end
   end
 
   describe "PATCH /admin/visitors/unwhitelist" do
