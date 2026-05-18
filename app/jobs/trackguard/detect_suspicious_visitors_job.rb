@@ -59,8 +59,8 @@ module Trackguard
       # legitimate users naturally hit only "/" once or twice.
       return if count < MIN_VIEWS
 
-      if views.all? { |pv| pv.session_id.nil? && pv.referer.nil? && pv.path == "/" }
-        flag!(visitor, "no session, no referrer, single root hit", name: name)
+      if views.all? { |pv| pv.session_id.nil? && pv.referer.nil? } && views.map(&:path).uniq.size == 1
+        flag!(visitor, "no session, no referrer, single path hit", name: name)
         return
       end
 
@@ -115,7 +115,11 @@ module Trackguard
     end
 
     def ua_flag_reason(user_agent)
-      "blank or minimal user-agent" if user_agent.blank? || user_agent.to_s.length < 10
+      return "blank or minimal user-agent" if user_agent.blank? || user_agent.to_s.length < 10
+      return "bare Mozilla/5.0 user-agent" if user_agent.strip == "Mozilla/5.0"
+      return "malformed user-agent (quoted)" if user_agent.start_with?('"')
+
+      "malformed user-agent (duplicate)" if user_agent.scan("Mozilla/5.0").size > 1
     end
 
     def flag!(visitor, reason, name: nil)

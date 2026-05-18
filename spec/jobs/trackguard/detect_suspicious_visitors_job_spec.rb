@@ -123,7 +123,9 @@ RSpec.describe Trackguard::DetectSuspiciousVisitorsJob, type: :job do
 
   it "flag_reason describes triggered signals" do
     v = create(:visitor)
-    create_list(:page_view, 10, visitor: v, path: "/about", session_id: nil, referer: nil)
+    # Two distinct paths so the single-path shortcut does not fire; scored instead.
+    5.times { |i| create(:page_view, visitor: v, path: "/page-#{i}", session_id: nil, referer: nil) }
+    5.times { |i| create(:page_view, visitor: v, path: "/other-#{i}", session_id: nil, referer: nil) }
     run_job
     v.reload
     expect(v.flagged_at).not_to be_nil
@@ -268,6 +270,35 @@ RSpec.describe Trackguard::DetectSuspiciousVisitorsJob, type: :job do
     expect(v.reload.flagged_at).to be_nil
   end
 
+  it "flags visitor with bare Mozilla/5.0 user_agent" do
+    v = create(:visitor, user_agent: "Mozilla/5.0")
+    create(:page_view, visitor: v)
+    run_job
+    v.reload
+    expect(v.flagged_at).not_to be_nil
+    expect(v.flag_reason).to eq("bare Mozilla/5.0 user-agent")
+  end
+
+  it "flags visitor with quoted user_agent" do
+    v = create(:visitor, user_agent: '"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"')
+    create(:page_view, visitor: v)
+    run_job
+    v.reload
+    expect(v.flagged_at).not_to be_nil
+    expect(v.flag_reason).to eq("malformed user-agent (quoted)")
+  end
+
+  it "flags visitor with concatenated duplicate user_agent" do
+    dup_ua = "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36, " \
+             "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
+    v = create(:visitor, user_agent: dup_ua)
+    create(:page_view, visitor: v)
+    run_job
+    v.reload
+    expect(v.flagged_at).not_to be_nil
+    expect(v.flag_reason).to eq("malformed user-agent (duplicate)")
+  end
+
   # --- visitor name detection ---
 
   context "visitor name detection" do
@@ -324,35 +355,44 @@ RSpec.describe Trackguard::DetectSuspiciousVisitorsJob, type: :job do
     end
   end
 
-  # --- structural: no session, no referrer, single root hit ---
+  # --- structural: no session, no referrer, single path hit ---
 
-  it "does not flag visitor with fewer than MIN_VIEWS root-only hits (below threshold)" do
+  it "does not flag visitor with fewer than MIN_VIEWS single-path hits (below threshold)" do
     v = create(:visitor)
     create_list(:page_view, 2, visitor: v, path: "/", session_id: nil, referer: nil)
     run_job
     expect(v.reload.flagged_at).to be_nil
   end
 
-  it "flags visitor with MIN_VIEWS+ root-only views all missing session and referrer" do
+  it "flags visitor with MIN_VIEWS+ hits to / all missing session and referrer" do
     v = create(:visitor)
     create_list(:page_view, 3, visitor: v, path: "/", session_id: nil, referer: nil)
     run_job
     v.reload
     expect(v.flagged_at).not_to be_nil
-    expect(v.flag_reason).to eq("no session, no referrer, single root hit")
+    expect(v.flag_reason).to eq("no session, no referrer, single path hit")
   end
 
-  it "does not flag visitor who hits / with a session present" do
+  it "flags visitor with MIN_VIEWS+ hits to a non-root path all missing session and referrer" do
+    v = create(:visitor)
+    create_list(:page_view, 3, visitor: v, path: "/about", session_id: nil, referer: nil)
+    run_job
+    v.reload
+    expect(v.flagged_at).not_to be_nil
+    expect(v.flag_reason).to eq("no session, no referrer, single path hit")
+  end
+
+  it "does not flag visitor who hits a single path with a session present" do
     v = create(:visitor)
     create(:page_view, visitor: v, path: "/", session_id: "abc123", referer: nil)
     run_job
     expect(v.reload.flagged_at).to be_nil
   end
 
-  it "does not flag visitor who visits / and another path (mixed)" do
+  it "does not flag visitor who visits two different paths without session or referrer" do
     v = create(:visitor)
-    create(:page_view, visitor: v, path: "/", session_id: nil, referer: nil)
-    create(:page_view, visitor: v, path: "/about", session_id: "abc123", referer: nil)
+    create_list(:page_view, 2, visitor: v, path: "/",      session_id: nil, referer: nil)
+    create_list(:page_view, 2, visitor: v, path: "/about", session_id: nil, referer: nil)
     run_job
     expect(v.reload.flagged_at).to be_nil
   end
