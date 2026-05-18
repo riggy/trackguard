@@ -5,14 +5,13 @@ module Trackguard
     HARD_FLAG_THRESHOLD  = 50
     HIGH_VOLUME_MIN      = 20
     MEDIUM_VOLUME_MIN    = 10
-    FLAG_SCORE_THRESHOLD = 6
+    FLAG_SCORE_THRESHOLD = 5
     MIN_VIEWS            = 3
 
     WEIGHTS = {
       high_volume: 4,
       medium_volume: 2,
-      no_session: 3,
-      no_referer: 2
+      no_session: 3
     }.freeze
 
     def perform
@@ -78,11 +77,6 @@ module Trackguard
       if blank_ratio(views, :session_id) > 0.8
         score += WEIGHTS[:no_session]
         reasons << "#{pct(views, :session_id)}% of views had no session"
-      end
-
-      if blank_ratio(views, :referer) > 0.0
-        score += WEIGHTS[:no_referer]
-        reasons << "#{pct(views, :referer)}% of views had no referer"
       end
 
       return if score < FLAG_SCORE_THRESHOLD

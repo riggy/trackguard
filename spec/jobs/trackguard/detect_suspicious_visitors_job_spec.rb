@@ -30,14 +30,14 @@ RSpec.describe Trackguard::DetectSuspiciousVisitorsJob, type: :job do
 
   # --- scoring: flagged cases ---
 
-  it "flags visitor with 12 views + no session + no referer (score 9)" do
+  it "flags visitor with 12 views + no session + no referer (single-path rule)" do
     v = create(:visitor)
     create_list(:page_view, 12, visitor: v, session_id: nil, referer: nil)
     run_job
     expect(v.reload.flagged_at).not_to be_nil
   end
 
-  it "flags visitor with 10 views + no session + no referer (score 7)" do
+  it "flags visitor with 10 views + no session + no referer (single-path rule)" do
     v = create(:visitor)
     create_list(:page_view, 10, visitor: v, session_id: nil, referer: nil)
     run_job
@@ -77,11 +77,21 @@ RSpec.describe Trackguard::DetectSuspiciousVisitorsJob, type: :job do
     expect(v.reload.flagged_at).to be_nil
   end
 
-  it "does not flag visitor with no referer alone (score 2)" do
+  it "does not flag visitor with no referer alone (score 0)" do
     v = create(:visitor)
     create_list(:page_view, 3, visitor: v, session_id: "abc123", referer: nil)
     run_job
     expect(v.reload.flagged_at).to be_nil
+  end
+
+  it "flags visitor with medium volume and majority sessionless views (score 5)" do
+    v = create(:visitor)
+    # 9 of 10 views have no session (90% > 0.8 threshold), spread across paths so the
+    # single-path rule does not fire; all have a referer so only the session signal scores.
+    9.times { |i| create(:page_view, visitor: v, path: "/p-#{i}", session_id: nil) }
+    create(:page_view, visitor: v, path: "/p-9", session_id: "abc")
+    run_job
+    expect(v.reload.flagged_at).not_to be_nil
   end
 
   # --- boundary: 80% threshold is not > 80% ---
@@ -90,7 +100,7 @@ RSpec.describe Trackguard::DetectSuspiciousVisitorsJob, type: :job do
     v = create(:visitor)
     # 8 blank + 2 with session = exactly 80%, which is NOT > 0.8 (the threshold)
     # Use distinct paths and present referers so no other signals trigger.
-    # Score: high_volume (10 views = +4) only → 4, below threshold 5.
+    # Score: medium_volume (10 views = +2) only → 2, below threshold.
     8.times { |i| create(:page_view, visitor: v, path: "/page-#{i}",  session_id: nil,      referer: "https://google.com", created_at: 1.hour.ago) }
     2.times { |i| create(:page_view, visitor: v, path: "/other-#{i}", session_id: "hashed", referer: "https://google.com", created_at: 1.hour.ago) }
     run_job
@@ -130,7 +140,6 @@ RSpec.describe Trackguard::DetectSuspiciousVisitorsJob, type: :job do
     v.reload
     expect(v.flagged_at).not_to be_nil
     expect(v.flag_reason).to include("no session")
-    expect(v.flag_reason).to include("no referer")
   end
 
   # --- whitelist ---
