@@ -7,6 +7,10 @@ module Trackguard
         BlockedUserAgent.blocked?(user_agent)
       end
 
+      def blocked_path?(path)
+        BlockedPath.blocked?(path)
+      end
+
       def whitelisted_ip?(ip)
         WhitelistedIp.whitelisted?(ip)
       end

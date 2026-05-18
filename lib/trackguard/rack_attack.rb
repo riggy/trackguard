@@ -4,6 +4,7 @@ require "rack/attack"
 
 module Trackguard
   module RackAttack
+    # rubocop:disable Metrics/MethodLength
     def self.configure
       adapter = Trackguard.adapter
 
@@ -19,6 +20,10 @@ module Trackguard
         adapter.blocked_user_agent?(req.user_agent)
       end
 
+      ::Rack::Attack.blocklist("trackguard/block known paths") do |req|
+        adapter.blocked_path?(req.path)
+      end
+
       ::Rack::Attack.blocklist("trackguard/flagged visitors") do |req|
         adapter.flagged_visitor?(req.ip)
       end
@@ -31,6 +36,7 @@ module Trackguard
 
       subscribe_to_blocked_requests(adapter)
     end
+    # rubocop:enable Metrics/MethodLength
 
     def self.subscribe_to_blocked_requests(adapter)
       @subscribe_to_blocked_requests ||= ActiveSupport::Notifications.subscribe("rack.attack") do |*, payload|

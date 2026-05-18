@@ -54,6 +54,11 @@ module Trackguard
         return
       end
 
+      if (path = probe_path_hit(views))
+        flag!(visitor, "probe path hit: #{path}", name: name)
+        return
+      end
+
       # Don't flag casual visitors with very few views — on a single-page site,
       # legitimate users naturally hit only "/" once or twice.
       return if count < MIN_VIEWS
@@ -106,6 +111,10 @@ module Trackguard
           flag!(visitor, "trace_id shared across multiple visitors (cross-visitor bot detected)",
                 name: name_from_ua(visitor.user_agent))
         end
+    end
+
+    def probe_path_hit(views)
+      views.find { |pv| BlockedPath.blocked?(pv.path) }&.path
     end
 
     def ua_flag_reason(user_agent)

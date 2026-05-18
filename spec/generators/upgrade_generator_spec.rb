@@ -19,9 +19,9 @@ RSpec.describe Trackguard::UpgradeGenerator do
     Dir[File.join(destination, "db", "migrate", "*.rb")].find { |f| f.include?("add_trackguard_visits") }
   end
 
-  it "creates exactly two migration files" do
+  it "creates exactly three migration files" do
     run_generator
-    expect(Dir[File.join(destination, "db", "migrate", "*.rb")].length).to eq(2)
+    expect(Dir[File.join(destination, "db", "migrate", "*.rb")].length).to eq(3)
   end
 
   it "gives the migration a valid timestamp-based filename" do
@@ -73,6 +73,28 @@ RSpec.describe Trackguard::UpgradeGenerator do
 
     it "adds the name column to trackguard_visitors" do
       expect(File.read(visitor_name_migration)).to include(":name")
+    end
+  end
+
+  context "add_trackguard_blocked_paths migration" do
+    def blocked_paths_migration
+      Dir[File.join(destination, "db", "migrate", "*.rb")].find { |f| f.include?("add_trackguard_blocked_paths") }
+    end
+
+    before { run_generator }
+
+    it "gives the migration a valid timestamp-based filename" do
+      expect(File.basename(blocked_paths_migration)).to match(/\A\d{14}_add_trackguard_blocked_paths\.rb\z/)
+    end
+
+    it "generates an AddTrackguardBlockedPaths migration class" do
+      expect(File.read(blocked_paths_migration)).to include("class AddTrackguardBlockedPaths < ActiveRecord::Migration")
+    end
+
+    it "creates the blocked_paths table with a unique pattern index" do
+      content = File.read(blocked_paths_migration)
+      expect(content).to include("create_table :trackguard_blocked_paths")
+      expect(content).to include("add_index :trackguard_blocked_paths, :pattern, unique: true")
     end
   end
 end

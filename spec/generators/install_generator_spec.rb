@@ -80,6 +80,13 @@ RSpec.describe Trackguard::InstallGenerator do
     expect(content).to include("add_index :trackguard_blocked_user_agents, :pattern, unique: true")
   end
 
+  it "creates the blocked_paths table" do
+    run_generator
+    content = File.read(generated_migration)
+    expect(content).to include("create_table :trackguard_blocked_paths")
+    expect(content).to include("add_index :trackguard_blocked_paths, :pattern, unique: true")
+  end
+
   it "prints next steps including the seed task" do
     output = run_generator_capturing_output
     expect(output).to include("trackguard:seed_blocked_user_agents")

@@ -4,11 +4,13 @@ module Trackguard
   module Adapters
     class Base
       def blocked_user_agent?(user_agent) = raise NotImplementedError, "#{self.class}#blocked_user_agent?"
+      def blocked_path?(path)             = raise NotImplementedError, "#{self.class}#blocked_path?"
       def whitelisted_ip?(ip)             = raise NotImplementedError, "#{self.class}#whitelisted_ip?"
       def flagged_visitor?(ip)            = raise NotImplementedError, "#{self.class}#flagged_visitor?"
 
       def track_page_view(path:, ip:, user_agent:, referer:, session_id:, trace_id:, source:, initial:, http_method:)
         return if blocked_user_agent?(user_agent)
+        return if blocked_path?(path)
         return if path.blank? || path.start_with?(Trackguard.admin_path)
 
         perform_track_page_view(

@@ -59,6 +59,13 @@ ActiveRecord::Schema.define do
   end
 
   add_index :trackguard_blocked_user_agents, :pattern, unique: true
+
+  create_table :trackguard_blocked_paths, force: :cascade do |t|
+    t.string :pattern, null: false
+    t.timestamps
+  end
+
+  add_index :trackguard_blocked_paths, :pattern, unique: true
 end
 
 FactoryBot.definition_file_paths = [ File.expand_path("factories", __dir__) ]

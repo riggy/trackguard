@@ -50,5 +50,12 @@ class CreateTrackguardTables < ActiveRecord::Migration[<%= ActiveRecord::Migrati
     end
 
     add_index :trackguard_blocked_user_agents, :pattern, unique: true
+
+    create_table :trackguard_blocked_paths do |t|
+      t.string :pattern, null: false
+      t.timestamps
+    end
+
+    add_index :trackguard_blocked_paths, :pattern, unique: true
   end
 end

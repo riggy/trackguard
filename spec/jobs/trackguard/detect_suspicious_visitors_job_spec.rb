@@ -245,6 +245,53 @@ RSpec.describe Trackguard::DetectSuspiciousVisitorsJob, type: :job do
     end
   end
 
+  # --- probe path detection ---
+
+  context "probe path detection" do
+    before { Rails.cache.delete(Trackguard::BlockedPath::CACHE_KEY) }
+
+    it "flags visitor who hit a blocked path" do
+      create(:blocked_path, pattern: "/.env")
+      v = create(:visitor)
+      create(:page_view, visitor: v, path: "/.env")
+      run_job
+      v.reload
+      expect(v.flagged_at).not_to be_nil
+      expect(v.flag_reason).to eq("probe path hit: /.env")
+    end
+
+    it "flags visitor whose view path contains the pattern as a substring" do
+      create(:blocked_path, pattern: "/.env")
+      v = create(:visitor)
+      create(:page_view, visitor: v, path: "/.env.backup")
+      run_job
+      expect(v.reload.flagged_at).not_to be_nil
+    end
+
+    it "does not flag visitor whose views hit no blocked path" do
+      create(:blocked_path, pattern: "/.env")
+      v = create(:visitor)
+      create(:page_view, visitor: v, path: "/posts/hello")
+      run_job
+      expect(v.reload.flagged_at).to be_nil
+    end
+
+    it "does not flag when no blocked paths are configured" do
+      v = create(:visitor)
+      create(:page_view, visitor: v, path: "/.env")
+      run_job
+      expect(v.reload.flagged_at).to be_nil
+    end
+
+    it "fires before the MIN_VIEWS check — flags on a single probe hit" do
+      create(:blocked_path, pattern: "/wp-login.php")
+      v = create(:visitor)
+      create(:page_view, visitor: v, path: "/wp-login.php")
+      run_job
+      expect(v.reload.flagged_at).not_to be_nil
+    end
+  end
+
   # --- UA: blank or minimal ---
 
   it "flags visitor with blank user_agent" do
