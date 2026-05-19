@@ -38,6 +38,12 @@ RSpec.describe Trackguard::InstallGenerator do
     expect(migrations.length).to eq(5)
   end
 
+  it "is idempotent — re-running skips already-existing migrations" do
+    run_generator
+    run_generator
+    expect(migrations.length).to eq(5)
+  end
+
   it "gives each migration a valid timestamp-based filename" do
     run_generator
     migrations.each do |f|
