@@ -6,8 +6,8 @@ module Trackguard
 
     initializer "trackguard.helpers" do
       ActiveSupport.on_load(:action_controller) do
-        helper Trackguard::ApplicationHelper
-        helper Trackguard::DashboardHelper
+        helper ApplicationHelper
+        helper DashboardHelper
       end
     end
 
