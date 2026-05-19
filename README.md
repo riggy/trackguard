@@ -7,6 +7,7 @@ A Rails Engine gem for visitor analytics and page view tracking. Designed to be 
 - Client-side page view tracking via a Stimulus controller (Turbo/SPA-aware)
 - Server-side tracking via a concern mixin
 - Bot filtering via a database-driven blocked user agent list
+- Path probe blocking via a database-driven blocked path list
 - Automatic rate limiting and request blocking via `rack-attack`
 - Suspicious visitor detection (nightly background job)
 - Visitor deduplication by IP with first/last seen timestamps, optional name detection
@@ -35,16 +36,46 @@ Mount the engine in `config/routes.rb`:
 mount Trackguard::Engine => "/"
 ```
 
-Run the install generator, then migrate and seed:
+Run the install generator, migrate, and seed:
 
 ```bash
 rails generate trackguard:install
 rails db:migrate
 rails trackguard:seed_blocked_user_agents
+rails trackguard:seed_blocked_paths
 ```
 
-The generator creates the database migration. `seed_blocked_user_agents` populates the
-`trackguard_blocked_user_agents` table with known bot and scanner patterns.
+The generator creates five individual migrations — one per table. The seed tasks populate
+`trackguard_blocked_user_agents` with known bot/scanner patterns and `trackguard_blocked_paths`
+with common path probes (WordPress, PHP shells, config leaks, etc.).
+
+## Upgrading
+
+### From a version with individual per-table migrations
+
+Re-run the install generator. It skips any migrations that already exist and only writes new ones:
+
+```bash
+rails generate trackguard:install
+rails db:migrate
+rails trackguard:seed_blocked_paths
+```
+
+### From v0.26.0 or earlier (monolithic `create_trackguard_tables` migration)
+
+Versions up to and including 0.26.0 shipped a single migration that created all tables at once. Run the cleanup
+task first — it replaces that migration with the individual per-table ones and updates
+`schema_migrations` and `db/schema.rb` to match, without touching the actual tables:
+
+```bash
+rails trackguard:cleanup_monolithic_migration
+rails generate trackguard:install
+rails db:migrate
+rails trackguard:seed_blocked_paths
+```
+
+The cleanup task will show you exactly what it intends to change and ask for confirmation
+before proceeding.
 
 ## Configuration
 
@@ -111,7 +142,7 @@ Traffic source is resolved in priority order: `ref` URL param → `utm_source` U
 ### Admin UI
 
 The admin interface is accessible at `/admin`. It covers traffic overviews, analytics, visit
-logs, and bot pattern management. Authentication is required — configure it via
+logs, and bot/path pattern management. Authentication is required — configure it via
 `authenticate_admin_with` in the initializer (see above).
 
 ## Architecture
@@ -129,7 +160,8 @@ logs, and bot pattern management. Authentication is required — configure it vi
 - **`Visit`** — STI base class stored in `trackguard_visits`. Subclasses:
   - **`PageView`** — A normal page visit with `path`, `referer`, `session_id`, `trace_id`, `source`, `http_method`.
   - **`BlockedRequest`** — A request blocked by rack-attack, with `block_reason`.
-- **`BlockedUserAgent`** — Database-driven bot/scanner patterns used by rack-attack and `PageViewRecorder`.
+- **`BlockedUserAgent`** — Database-driven patterns matched against the `User-Agent` header to identify bots and scanners.
+- **`BlockedPath`** — Database-driven patterns matched against the request path to detect probes (e.g. `/wp-admin`, `/.env`). Seeded via `trackguard:seed_blocked_paths`.
 - **`WhitelistedIp`** — IPs exempt from blocking, with an `expires_at` timestamp.
 
 ### Key files
