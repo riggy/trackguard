@@ -2,7 +2,7 @@ module Trackguard
   class Visitor < ApplicationRecord
     self.table_name = "trackguard_visitors"
 
-    FLAGGED_BY = [ "User", "claw:auto" ].freeze
+    FLAGGED_BY = [ "User", "claw:auto", "Recurring Job", "Internal Automation", "External Automation" ].freeze
     CACHE_KEY = "trackguard/flagged_ips".freeze
 
     validates :flagged_by, inclusion: { in: FLAGGED_BY }, allow_blank: true

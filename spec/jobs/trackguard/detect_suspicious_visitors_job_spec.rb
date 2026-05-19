@@ -179,7 +179,7 @@ RSpec.describe Trackguard::DetectSuspiciousVisitorsJob, type: :job do
       run_job
       v1.reload
       expect(v1.flag_reason).to include("trace_id shared across multiple visitors")
-      expect(v1.flagged_by).to eq("claw:auto")
+      expect(v1.flagged_by).to eq("Recurring Job")
     end
 
     context "when v1 is already flagged" do

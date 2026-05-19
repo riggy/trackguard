@@ -126,7 +126,7 @@ module Trackguard
     end
 
     def flag!(visitor, reason, name: nil)
-      visitor.update!(flagged_at: Time.current, flag_reason: reason, flagged_by: "claw:auto", name: name)
+      visitor.update!(flagged_at: Time.current, flag_reason: reason, flagged_by: "Recurring Job", name: name)
     end
 
     def name_from_ua(user_agent)
