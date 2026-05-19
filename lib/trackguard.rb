@@ -5,11 +5,13 @@ require "trackguard/engine"
 require "trackguard/rack_attack"
 require "trackguard/adapters/base"
 require "trackguard/adapters/local"
+require "trackguard/adapters/hub"
 
 module Trackguard
   class << self
     attr_writer :authenticate_admin_with, :admin_layout, :admin_path, :back_label, :api_token, :throttle_limit,
-                :throttle_period
+                :throttle_period, :hub_token, :hub_rules_ttl
+    attr_accessor :hub_url
 
     def authenticate_admin_with
       @authenticate_admin_with ||= proc {}
@@ -38,6 +40,9 @@ module Trackguard
     def throttle_period
       @throttle_period ||= 60
     end
+
+    def hub_token     = @hub_token.to_s
+    def hub_rules_ttl = @hub_rules_ttl ||= 5.minutes
 
     def adapter
       @adapter ||= Trackguard::Adapters::Local.new

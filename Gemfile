@@ -9,4 +9,5 @@ group :development, :test do
   gem "rubocop"
   gem "rubocop-rails"
   gem "sqlite3", ">= 2.1"
+  gem "webmock"
 end
