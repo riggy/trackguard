@@ -33,6 +33,7 @@ Metrics/AbcSize:
 Metrics/BlockLength:
   Exclude:
     - "spec/**/*.rb"
+    - "lib/tasks/**/*.rake"
 
 Metrics/ClassLength:
   Max: 200
