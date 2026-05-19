@@ -1,4 +1,4 @@
-class AddTrackguardBlockedPaths < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+class CreateTrackguardBlockedPaths < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
   def change
     create_table :trackguard_blocked_paths do |t|
       t.string :pattern, null: false

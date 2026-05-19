@@ -25,70 +25,121 @@ RSpec.describe Trackguard::InstallGenerator do
     $stdout = original
   end
 
-  def generated_migration
-    Dir[File.join(destination, "db", "migrate", "*.rb")].first
+  def migrations
+    Dir[File.join(destination, "db", "migrate", "*.rb")]
   end
 
-  it "creates exactly one migration file" do
+  def migration_named(name)
+    migrations.find { |f| f.include?(name) }
+  end
+
+  it "creates exactly five migration files" do
     run_generator
-    expect(Dir[File.join(destination, "db", "migrate", "*.rb")].length).to eq(1)
+    expect(migrations.length).to eq(5)
   end
 
-  it "gives the migration a valid timestamp-based filename" do
+  it "gives each migration a valid timestamp-based filename" do
     run_generator
-    expect(File.basename(generated_migration)).to match(/\A\d{14}_create_trackguard_tables\.rb\z/)
+    migrations.each do |f|
+      expect(File.basename(f)).to match(/\A\d{14}_\w+\.rb\z/)
+    end
   end
 
-  it "generates a CreateTrackguardTables migration class" do
-    run_generator
-    expect(File.read(generated_migration)).to include("class CreateTrackguardTables < ActiveRecord::Migration")
+  describe "create_trackguard_visitors migration" do
+    before { run_generator }
+
+    it "is generated" do
+      expect(migration_named("create_trackguard_visitors")).not_to be_nil
+    end
+
+    it "creates the visitors table with the expected columns" do
+      content = File.read(migration_named("create_trackguard_visitors"))
+      expect(content).to include("class CreateTrackguardVisitors < ActiveRecord::Migration")
+      expect(content).to include("create_table :trackguard_visitors")
+      expect(content).to include(":first_seen_at")
+      expect(content).to include(":last_seen_at")
+      expect(content).to include(":flagged_at")
+      expect(content).to include(":flagged_by")
+      expect(content).to include(":name")
+    end
+
+    it "adds a unique index on ip" do
+      expect(File.read(migration_named("create_trackguard_visitors"))).to include(
+        "add_index :trackguard_visitors, :ip, unique: true"
+      )
+    end
   end
 
-  it "creates the visitors table with the expected columns" do
-    run_generator
-    content = File.read(generated_migration)
-    expect(content).to include("create_table :trackguard_visitors")
-    expect(content).to include(":first_seen_at")
-    expect(content).to include(":last_seen_at")
-    expect(content).to include(":flagged_at")
-    expect(content).to include(":flagged_by")
+  describe "create_trackguard_visits migration" do
+    before { run_generator }
+
+    it "is generated" do
+      expect(migration_named("create_trackguard_visits")).not_to be_nil
+    end
+
+    it "creates the visits table with the expected columns" do
+      content = File.read(migration_named("create_trackguard_visits"))
+      expect(content).to include("class CreateTrackguardVisits < ActiveRecord::Migration")
+      expect(content).to include("create_table :trackguard_visits")
+      expect(content).to include(":type")
+      expect(content).to include(":path")
+      expect(content).to include(":session_id")
+      expect(content).to include(":trace_id")
+      expect(content).to include(":source")
+      expect(content).to include(":block_reason")
+      expect(content).to include(":http_method")
+      expect(content).to include(":visitor")
+    end
   end
 
-  it "adds a unique index on visitors.ip" do
-    run_generator
-    expect(File.read(generated_migration)).to include("add_index :trackguard_visitors, :ip, unique: true")
+  describe "create_trackguard_whitelisted_ips migration" do
+    before { run_generator }
+
+    it "is generated" do
+      expect(migration_named("create_trackguard_whitelisted_ips")).not_to be_nil
+    end
+
+    it "creates the whitelisted_ips table" do
+      content = File.read(migration_named("create_trackguard_whitelisted_ips"))
+      expect(content).to include("class CreateTrackguardWhitelistedIps < ActiveRecord::Migration")
+      expect(content).to include("create_table :trackguard_whitelisted_ips")
+      expect(content).to include(":expires_at")
+    end
   end
 
-  it "creates the visits table with the expected columns" do
-    run_generator
-    content = File.read(generated_migration)
-    expect(content).to include("create_table :trackguard_visits")
-    expect(content).to include(":type")
-    expect(content).to include(":path")
-    expect(content).to include(":session_id")
-    expect(content).to include(":trace_id")
-    expect(content).to include(":source")
-    expect(content).to include(":block_reason")
-    expect(content).to include(":http_method")
-    expect(content).to include(":visitor")
+  describe "create_trackguard_blocked_user_agents migration" do
+    before { run_generator }
+
+    it "is generated" do
+      expect(migration_named("create_trackguard_blocked_user_agents")).not_to be_nil
+    end
+
+    it "creates the blocked_user_agents table with a unique pattern index" do
+      content = File.read(migration_named("create_trackguard_blocked_user_agents"))
+      expect(content).to include("class CreateTrackguardBlockedUserAgents < ActiveRecord::Migration")
+      expect(content).to include("create_table :trackguard_blocked_user_agents")
+      expect(content).to include("add_index :trackguard_blocked_user_agents, :pattern, unique: true")
+    end
   end
 
-  it "creates the blocked_user_agents table" do
-    run_generator
-    content = File.read(generated_migration)
-    expect(content).to include("create_table :trackguard_blocked_user_agents")
-    expect(content).to include("add_index :trackguard_blocked_user_agents, :pattern, unique: true")
+  describe "create_trackguard_blocked_paths migration" do
+    before { run_generator }
+
+    it "is generated" do
+      expect(migration_named("create_trackguard_blocked_paths")).not_to be_nil
+    end
+
+    it "creates the blocked_paths table with a unique pattern index" do
+      content = File.read(migration_named("create_trackguard_blocked_paths"))
+      expect(content).to include("class CreateTrackguardBlockedPaths < ActiveRecord::Migration")
+      expect(content).to include("create_table :trackguard_blocked_paths")
+      expect(content).to include("add_index :trackguard_blocked_paths, :pattern, unique: true")
+    end
   end
 
-  it "creates the blocked_paths table" do
-    run_generator
-    content = File.read(generated_migration)
-    expect(content).to include("create_table :trackguard_blocked_paths")
-    expect(content).to include("add_index :trackguard_blocked_paths, :pattern, unique: true")
-  end
-
-  it "prints next steps including the seed task" do
+  it "prints next steps including both seed tasks" do
     output = run_generator_capturing_output
     expect(output).to include("trackguard:seed_blocked_user_agents")
+    expect(output).to include("trackguard:seed_blocked_paths")
   end
 end

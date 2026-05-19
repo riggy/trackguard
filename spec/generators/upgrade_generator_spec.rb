@@ -1,4 +1,5 @@
 require "rails_helper"
+require "generators/trackguard/install_generator"
 require "generators/trackguard/upgrade_generator"
 
 RSpec.describe Trackguard::UpgradeGenerator do
@@ -7,94 +8,92 @@ RSpec.describe Trackguard::UpgradeGenerator do
   before { FileUtils.mkdir_p(File.join(destination, "db", "migrate")) }
   after  { FileUtils.rm_rf(destination) }
 
-  def run_generator
+  def run_generator(klass = described_class)
     original = $stdout
     $stdout = StringIO.new
-    Trackguard::UpgradeGenerator.start([], destination_root: destination)
+    klass.start([], destination_root: destination)
   ensure
     $stdout = original
   end
 
-  def generated_migration
-    Dir[File.join(destination, "db", "migrate", "*.rb")].find { |f| f.include?("add_trackguard_visits") }
+  def migrations
+    Dir[File.join(destination, "db", "migrate", "*.rb")]
   end
 
-  it "creates exactly three migration files" do
+  def migration_named(name)
+    migrations.find { |f| f.include?(name) }
+  end
+
+  it "creates exactly five migration files" do
     run_generator
-    expect(Dir[File.join(destination, "db", "migrate", "*.rb")].length).to eq(3)
+    expect(migrations.length).to eq(5)
   end
 
-  it "gives the migration a valid timestamp-based filename" do
+  it "gives each migration a valid timestamp-based filename" do
     run_generator
-    expect(File.basename(generated_migration)).to match(/\A\d{14}_add_trackguard_visits\.rb\z/)
-  end
-
-  it "generates an AddTrackguardVisits migration class" do
-    run_generator
-    expect(File.read(generated_migration)).to include("class AddTrackguardVisits < ActiveRecord::Migration")
-  end
-
-  it "renames the page_views table to visits" do
-    run_generator
-    content = File.read(generated_migration)
-    expect(content).to include("rename_table :trackguard_page_views, :trackguard_visits")
-  end
-
-  it "adds the STI type column" do
-    run_generator
-    expect(File.read(generated_migration)).to include(":type")
-  end
-
-  it "adds block_reason and http_method columns" do
-    run_generator
-    content = File.read(generated_migration)
-    expect(content).to include(":block_reason")
-    expect(content).to include(":http_method")
-  end
-
-  context "add_visitor_name migration" do
-    def generated_migrations
-      Dir[File.join(destination, "db", "migrate", "*.rb")]
+    migrations.each do |f|
+      expect(File.basename(f)).to match(/\A\d{14}_\w+\.rb\z/)
     end
+  end
 
-    def visitor_name_migration
-      generated_migrations.find { |f| f.include?("add_visitor_name") }
-    end
+  it "generates the same migrations as the install generator" do
+    run_generator
+    names = migrations.map { |f| File.basename(f).sub(/\A\d{14}_/, "") }.sort
+    expected = %w[
+      create_trackguard_blocked_paths.rb
+      create_trackguard_blocked_user_agents.rb
+      create_trackguard_visitors.rb
+      create_trackguard_visits.rb
+      create_trackguard_whitelisted_ips.rb
+    ]
+    expect(names).to eq(expected)
+  end
 
+  it "skips migrations that already exist from a prior install" do
+    run_generator(Trackguard::InstallGenerator)
+    run_generator
+    expect(migrations.length).to eq(5)
+  end
+
+  describe "create_trackguard_visitors migration" do
     before { run_generator }
 
-    it "gives the migration a valid timestamp-based filename" do
-      expect(File.basename(visitor_name_migration)).to match(/\A\d{14}_add_visitor_name\.rb\z/)
-    end
-
-    it "generates an AddVisitorName migration class" do
-      expect(File.read(visitor_name_migration)).to include("class AddVisitorName < ActiveRecord::Migration")
-    end
-
-    it "adds the name column to trackguard_visitors" do
-      expect(File.read(visitor_name_migration)).to include(":name")
+    it "creates the visitors table" do
+      content = File.read(migration_named("create_trackguard_visitors"))
+      expect(content).to include("class CreateTrackguardVisitors < ActiveRecord::Migration")
+      expect(content).to include("create_table :trackguard_visitors")
     end
   end
 
-  context "add_trackguard_blocked_paths migration" do
-    def blocked_paths_migration
-      Dir[File.join(destination, "db", "migrate", "*.rb")].find { |f| f.include?("add_trackguard_blocked_paths") }
-    end
-
+  describe "create_trackguard_visits migration" do
     before { run_generator }
 
-    it "gives the migration a valid timestamp-based filename" do
-      expect(File.basename(blocked_paths_migration)).to match(/\A\d{14}_add_trackguard_blocked_paths\.rb\z/)
+    it "creates the visits table directly (not via rename)" do
+      content = File.read(migration_named("create_trackguard_visits"))
+      expect(content).to include("class CreateTrackguardVisits < ActiveRecord::Migration")
+      expect(content).to include("create_table :trackguard_visits")
+      expect(content).not_to include("rename_table")
     end
+  end
 
-    it "generates an AddTrackguardBlockedPaths migration class" do
-      expect(File.read(blocked_paths_migration)).to include("class AddTrackguardBlockedPaths < ActiveRecord::Migration")
-    end
+  describe "create_trackguard_blocked_paths migration" do
+    before { run_generator }
 
     it "creates the blocked_paths table with a unique pattern index" do
-      content = File.read(blocked_paths_migration)
+      content = File.read(migration_named("create_trackguard_blocked_paths"))
+      expect(content).to include("class CreateTrackguardBlockedPaths < ActiveRecord::Migration")
       expect(content).to include("create_table :trackguard_blocked_paths")
       expect(content).to include("add_index :trackguard_blocked_paths, :pattern, unique: true")
     end
+  end
+
+  it "prints next steps including the seed_blocked_paths task" do
+    buffer = StringIO.new
+    original = $stdout
+    $stdout = buffer
+    described_class.start([], destination_root: destination)
+    expect(buffer.string).to include("trackguard:seed_blocked_paths")
+  ensure
+    $stdout = original
   end
 end

@@ -11,21 +11,19 @@ module Trackguard
       ActiveRecord::Generators::Base.next_migration_number(dirname)
     end
 
-    def create_visits_migration_file
-      migration_template "add_trackguard_visits.rb", "db/migrate/add_trackguard_visits.rb"
-    end
-
-    def create_visitor_name_migration_file
-      migration_template "add_visitor_name.rb", "db/migrate/add_visitor_name.rb"
-    end
-
-    def create_blocked_paths_migration_file
-      migration_template "add_trackguard_blocked_paths.rb", "db/migrate/add_trackguard_blocked_paths.rb"
+    def create_migration_files
+      migration_template "create_trackguard_visitors.rb",           "db/migrate/create_trackguard_visitors.rb"
+      migration_template "create_trackguard_visits.rb",             "db/migrate/create_trackguard_visits.rb"
+      migration_template "create_trackguard_whitelisted_ips.rb",    "db/migrate/create_trackguard_whitelisted_ips.rb"
+      migration_template "create_trackguard_blocked_user_agents.rb",
+                         "db/migrate/create_trackguard_blocked_user_agents.rb"
+      migration_template "create_trackguard_blocked_paths.rb", "db/migrate/create_trackguard_blocked_paths.rb"
     end
 
     def print_next_steps
       say "\nNext steps:", :green
       say "  1. rails db:migrate"
+      say "  2. rails trackguard:seed_blocked_paths"
     end
   end
 end
