@@ -10,7 +10,7 @@ require "trackguard/adapters/hub"
 module Trackguard
   class << self
     attr_writer :authenticate_admin_with, :admin_layout, :admin_path, :back_label, :api_token, :throttle_limit,
-                :throttle_period, :hub_token, :hub_rules_ttl
+                :throttle_period, :hub_secret_key, :hub_api_key, :hub_rules_ttl
     attr_accessor :hub_url
 
     def authenticate_admin_with
@@ -41,7 +41,8 @@ module Trackguard
       @throttle_period ||= 60
     end
 
-    def hub_token     = @hub_token.to_s
+    def hub_secret_key = @hub_secret_key.to_s
+    def hub_api_key    = @hub_api_key.to_s
     def hub_rules_ttl = @hub_rules_ttl ||= 5.minutes
 
     def adapter

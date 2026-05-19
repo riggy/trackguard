@@ -18,7 +18,7 @@ RSpec.describe Trackguard::Adapters::Hub do
 
   before do
     Trackguard.hub_url   = hub_url
-    Trackguard.hub_token = "test-token"
+    Trackguard.hub_secret_key = "test-token"
     [ described_class::CACHE_KEY, described_class::STALE_KEY, described_class::ETAG_KEY ].each do |key|
       Rails.cache.delete(key)
     end
@@ -26,7 +26,7 @@ RSpec.describe Trackguard::Adapters::Hub do
 
   after do
     Trackguard.hub_url   = nil
-    Trackguard.hub_token = nil
+    Trackguard.hub_secret_key = nil
   end
 
   def stub_hub(status: 200, body: rules_payload.to_json, etag: nil)

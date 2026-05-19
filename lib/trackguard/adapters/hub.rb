@@ -57,7 +57,7 @@ module Trackguard
       def fetch_rules_from_hub
         uri = URI("#{Trackguard.hub_url}/api/rules")
         request = Net::HTTP::Get.new(uri)
-        request["Authorization"] = "Bearer #{Trackguard.hub_token}"
+        request["Authorization"] = "Bearer #{Trackguard.hub_secret_key}"
         request["Accept"] = "application/json"
 
         etag = Rails.cache.read(ETAG_KEY)
