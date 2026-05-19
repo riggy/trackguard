@@ -4,11 +4,9 @@ module Trackguard
   class Engine < ::Rails::Engine
     isolate_namespace Trackguard
 
-    initializer "trackguard.helpers" do
-      ActiveSupport.on_load(:action_controller) do
-        helper ApplicationHelper
-        helper DashboardHelper
-      end
+    config.to_prepare do
+      ActionController::Base.helper Trackguard::ApplicationHelper
+      ActionController::Base.helper Trackguard::HubHelper
     end
 
     initializer "trackguard.assets" do |app|
