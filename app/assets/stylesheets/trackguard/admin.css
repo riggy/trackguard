@@ -352,6 +352,14 @@
   font-size: 0.875rem;
 }
 
+.tg-summary__layer {
+  width: 1.5rem;
+  text-align: center;
+  flex-shrink: 0;
+  color: #d1d5db;
+  font-size: 0.875rem;
+}
+
 .tg-summary__time {
   font-size: 0.8125rem;
   color: #9ca3af;
@@ -372,6 +380,16 @@
   color: #22c55e;
   vertical-align: middle;
 }
+
+.tg-layer-icon {
+  width: 1rem;
+  height: 1rem;
+  vertical-align: middle;
+}
+
+.tg-layer-icon--js { color: #3b82f6; }
+
+.tg-layer-icon--backend { color: #8b5cf6; }
 
 /* ── Detail panel ──────────────────────────────────────────────────── */
 .tg-detail {
