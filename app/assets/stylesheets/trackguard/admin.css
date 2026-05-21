@@ -353,7 +353,7 @@
 }
 
 .tg-summary__layer {
-  width: 1.5rem;
+  width: 2.5rem;
   text-align: center;
   flex-shrink: 0;
   color: #d1d5db;
@@ -381,15 +381,26 @@
   vertical-align: middle;
 }
 
-.tg-layer-icon {
-  width: 1rem;
-  height: 1rem;
-  vertical-align: middle;
+.tg-layer-badge {
+  display: inline-block;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  padding: 0.125rem 0.3rem;
+  line-height: 1.4;
 }
 
-.tg-layer-icon--js { color: #3b82f6; }
+.tg-layer-badge--js {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
 
-.tg-layer-icon--backend { color: #8b5cf6; }
+.tg-layer-badge--backend {
+  background: #ede9fe;
+  color: #6d28d9;
+}
 
 /* ── Detail panel ──────────────────────────────────────────────────── */
 .tg-detail {
