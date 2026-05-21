@@ -8,7 +8,8 @@ module Trackguard
       def whitelisted_ip?(ip)             = raise NotImplementedError, "#{self.class}#whitelisted_ip?"
       def flagged_visitor?(ip)            = raise NotImplementedError, "#{self.class}#flagged_visitor?"
 
-      def track_page_view(path:, ip:, user_agent:, referer:, session_id:, trace_id:, source:, initial:, http_method:)
+      def track_page_view(path:, ip:, user_agent:, referer:, session_id:, trace_id:, source:, tracking_layer:,
+                          http_method:)
         return if blocked_user_agent?(user_agent)
         return if blocked_path?(path)
         return if path.blank? || path.start_with?(Trackguard.admin_path)
@@ -16,7 +17,7 @@ module Trackguard
         perform_track_page_view(
           path: path, ip: ip, user_agent: user_agent, referer: referer,
           session_id: session_id, trace_id: trace_id, source: source,
-          initial: initial, http_method: http_method
+          tracking_layer: tracking_layer, http_method: http_method
         )
       end
 
@@ -26,8 +27,8 @@ module Trackguard
 
       protected
 
-      def perform_track_page_view(path:, ip:, user_agent:, referer:, session_id:, trace_id:, source:, initial:,
-                                  http_method:)
+      def perform_track_page_view(path:, ip:, user_agent:, referer:, session_id:, trace_id:, source:,
+                                  tracking_layer:, http_method:)
         raise NotImplementedError, "#{self.class}#perform_track_page_view"
       end
     end

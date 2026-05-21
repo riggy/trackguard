@@ -13,7 +13,7 @@ RSpec.describe Trackguard::Adapters::Base do
     expect do
       adapter.track_page_view(
         path: "/", ip: "1.2.3.4", user_agent: "Mozilla", referer: nil,
-        session_id: nil, trace_id: nil, source: nil, initial: false, http_method: "GET"
+        session_id: nil, trace_id: nil, source: nil, tracking_layer: "backend", http_method: "GET"
       )
     end.to raise_error(NotImplementedError)
   end

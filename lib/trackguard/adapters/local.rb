@@ -31,8 +31,8 @@ module Trackguard
 
       protected
 
-      def perform_track_page_view(path:, ip:, user_agent:, referer:, session_id:, trace_id:, source:, initial:,
-                                  http_method:)
+      def perform_track_page_view(path:, ip:, user_agent:, referer:, session_id:, trace_id:, source:,
+                                  tracking_layer:, http_method:)
         TrackPageViewJob.perform_later(
           path: path,
           ip: ip,
@@ -41,7 +41,7 @@ module Trackguard
           session_id: session_id,
           trace_id: trace_id,
           source: source,
-          initial: initial,
+          tracking_layer: tracking_layer,
           http_method: http_method
         )
       end

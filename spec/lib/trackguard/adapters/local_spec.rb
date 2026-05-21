@@ -55,7 +55,7 @@ RSpec.describe Trackguard::Adapters::Local do
       {
         path: "/blog", ip: "1.2.3.4", user_agent: "Mozilla/5.0",
         referer: "https://example.com", session_id: "abc123",
-        trace_id: "trace-xyz", source: nil, initial: false, http_method: "GET"
+        trace_id: "trace-xyz", source: nil, tracking_layer: "backend", http_method: "GET"
       }
     end
 
@@ -67,7 +67,7 @@ RSpec.describe Trackguard::Adapters::Local do
       expect { track }.to have_enqueued_job(Trackguard::TrackPageViewJob).with(
         path: "/blog", ip: "1.2.3.4", user_agent: "Mozilla/5.0",
         referer: "https://example.com", session_id: "abc123",
-        trace_id: "trace-xyz", source: nil, initial: false, http_method: "GET"
+        trace_id: "trace-xyz", source: nil, tracking_layer: "backend", http_method: "GET"
       )
     end
 

@@ -33,15 +33,15 @@ RSpec.describe Trackguard::InstallGenerator do
     migrations.find { |f| f.include?(name) }
   end
 
-  it "creates exactly five migration files" do
+  it "creates exactly six migration files" do
     run_generator
-    expect(migrations.length).to eq(5)
+    expect(migrations.length).to eq(6)
   end
 
   it "is idempotent — re-running skips already-existing migrations" do
     run_generator
     run_generator
-    expect(migrations.length).to eq(5)
+    expect(migrations.length).to eq(6)
   end
 
   it "gives each migration a valid timestamp-based filename" do
@@ -94,7 +94,22 @@ RSpec.describe Trackguard::InstallGenerator do
       expect(content).to include(":source")
       expect(content).to include(":block_reason")
       expect(content).to include(":http_method")
+      expect(content).to include(":tracking_layer")
       expect(content).to include(":visitor")
+    end
+  end
+
+  describe "add_tracking_layer_to_trackguard_visits migration" do
+    before { run_generator }
+
+    it "is generated" do
+      expect(migration_named("add_tracking_layer_to_trackguard_visits")).not_to be_nil
+    end
+
+    it "adds a nullable tracking_layer string column" do
+      content = File.read(migration_named("add_tracking_layer_to_trackguard_visits"))
+      expect(content).to include("class AddTrackingLayerToTrackguardVisits < ActiveRecord::Migration")
+      expect(content).to include("add_column :trackguard_visits, :tracking_layer, :string")
     end
   end
 

@@ -9,7 +9,7 @@ RSpec.describe Trackguard::Adapters::Hub do
 
   let(:rules_payload) do
     {
-      blocked_user_agents: [ "AhrefsBot", "SemrushBot" ],
+      blocked_user_agents: %w[AhrefsBot SemrushBot],
       blocked_paths: [ "/wp-admin", "/.env" ],
       whitelisted_ips: [ "1.2.3.4" ],
       flagged_ips: [ "9.9.9.9" ]
@@ -17,7 +17,7 @@ RSpec.describe Trackguard::Adapters::Hub do
   end
 
   before do
-    Trackguard.hub_url   = hub_url
+    Trackguard.hub_url = hub_url
     Trackguard.hub_secret_key = "test-token"
     [ described_class::CACHE_KEY, described_class::STALE_KEY, described_class::ETAG_KEY ].each do |key|
       Rails.cache.delete(key)
@@ -25,7 +25,7 @@ RSpec.describe Trackguard::Adapters::Hub do
   end
 
   after do
-    Trackguard.hub_url   = nil
+    Trackguard.hub_url = nil
     Trackguard.hub_secret_key = nil
   end
 
@@ -158,8 +158,8 @@ RSpec.describe Trackguard::Adapters::Hub do
       Rails.cache.write(described_class::ETAG_KEY, '"abc123"', expires_in: 24.hours)
       Rails.cache.write(described_class::STALE_KEY, rules_payload, expires_in: 24.hours)
       request = stub_request(:get, rules_url)
-        .with(headers: { "If-None-Match" => '"abc123"' })
-        .to_return(status: 304, body: "", headers: {})
+                .with(headers: { "If-None-Match" => '"abc123"' })
+                .to_return(status: 304, body: "", headers: {})
       adapter.blocked_user_agent?("bot")
       expect(request).to have_been_made
     end

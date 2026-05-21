@@ -11,8 +11,7 @@ export default class extends Controller {
     window.addEventListener("hashchange", this.boundHash)
 
     // Cover initial load if turbo:load already fired before connect()
-    // Pass initial=true so the job can deduplicate/enrich against the server-side record
-    this.trackCurrent(true)
+    this.trackCurrent()
   }
 
   disconnect() {
@@ -20,14 +19,14 @@ export default class extends Controller {
     window.removeEventListener("hashchange", this.boundHash)
   }
 
-  trackCurrent(initial = false) {
+  trackCurrent() {
     const path = window.location.pathname + window.location.hash
     if (path === this.lastTracked) return
     this.lastTracked = path
-    this.track(path, initial)
+    this.track(path)
   }
 
-  track(path, initial = false) {
+  track(path) {
     const token = document.querySelector('meta[name="csrf-token"]')?.content
     const traceId = document.querySelector('meta[name="trace-id"]')?.content
     const url = this.urlValue || document.querySelector('meta[name="trackguard-url"]')?.content
@@ -35,7 +34,7 @@ export default class extends Controller {
     fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-CSRF-Token": token || "" },
-      body: JSON.stringify({ path, trace_id: traceId, ref, initial })
+      body: JSON.stringify({ path, trace_id: traceId, ref })
     })
   }
 }

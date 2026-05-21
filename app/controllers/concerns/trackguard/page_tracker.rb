@@ -30,7 +30,7 @@ module Trackguard
         session_id: session.id.to_s,
         trace_id: @trace_id,
         source: extract_source,
-        initial: false,
+        tracking_layer: "backend",
         http_method: request.request_method
       )
     end

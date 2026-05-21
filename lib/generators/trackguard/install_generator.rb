@@ -18,6 +18,8 @@ module Trackguard
       migration_template "create_trackguard_blocked_user_agents.rb",
                          "db/migrate/create_trackguard_blocked_user_agents.rb"
       migration_template "create_trackguard_blocked_paths.rb", "db/migrate/create_trackguard_blocked_paths.rb"
+      migration_template "add_tracking_layer_to_trackguard_visits.rb",
+                         "db/migrate/add_tracking_layer_to_trackguard_visits.rb"
     end
 
     def print_next_steps

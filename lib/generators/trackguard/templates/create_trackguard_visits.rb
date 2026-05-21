@@ -10,6 +10,7 @@ class CreateTrackguardVisits < ActiveRecord::Migration[<%= ActiveRecord::Migrati
       t.string    :source
       t.string    :block_reason
       t.string    :http_method
+      t.string    :tracking_layer
       t.references :visitor,     null: false, foreign_key: { to_table: :trackguard_visitors }
       t.datetime  :created_at,   null: false
     end

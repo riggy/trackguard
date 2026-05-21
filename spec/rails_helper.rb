@@ -32,6 +32,7 @@ ActiveRecord::Schema.define do
     t.string   :source
     t.string   :block_reason
     t.string   :http_method
+    t.string   :tracking_layer
     t.bigint   :visitor_id, null: false
     t.datetime :created_at, null: false
   end

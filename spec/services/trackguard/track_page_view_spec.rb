@@ -78,47 +78,19 @@ RSpec.describe Trackguard::TrackPageView do
       expect(Trackguard::PageView.last.visitor).to eq(visitor)
     end
 
-    it "is idempotent: does not duplicate for the same trace_id + visitor" do
-      call
-      expect { call }.not_to change(Trackguard::PageView, :count)
-    end
-  end
-
-  describe "SPA deduplication (initial: true)" do
-    let(:initial_params) { params.merge(initial: true) }
-
-    it "does not create a page view when a record with the same trace_id already exists" do
-      call
-      expect { described_class.call(**initial_params) }.not_to change(Trackguard::PageView, :count)
+    it "creates a new record on every call (no deduplication)" do
+      described_class.call(**params)
+      expect { described_class.call(**params) }.to change(Trackguard::PageView, :count).by(1)
     end
 
-    it "upgrades a hash-less path to the hashed variant when the new path is a fragment of the existing one" do
-      described_class.call(**initial_params, path: "/posts/hello")
-      described_class.call(**initial_params, path: "/posts/hello#section")
-      expect(Trackguard::PageView.last.path).to eq("/posts/hello#section")
+    it "persists tracking_layer: backend when called with tracking_layer: backend" do
+      described_class.call(**params, tracking_layer: "backend")
+      expect(Trackguard::PageView.last.tracking_layer).to eq("backend")
     end
 
-    it "does not change the path when the hash path is not a sub-fragment of the existing path" do
-      described_class.call(**initial_params, path: "/posts/hello")
-      described_class.call(**initial_params, path: "/other#section")
-      expect(Trackguard::PageView.last.path).to eq("/posts/hello")
-    end
-
-    it "does not overwrite an existing hashed path with another hashed path" do
-      described_class.call(**initial_params, path: "/posts/hello#first")
-      described_class.call(**initial_params, path: "/posts/hello#second")
-      expect(Trackguard::PageView.last.path).to eq("/posts/hello#first")
-    end
-
-    it "creates a new page view when no existing record matches trace_id" do
-      expect { described_class.call(**initial_params) }.to change(Trackguard::PageView, :count).by(1)
-    end
-
-    it "does not create a page view for a different visitor with the same trace_id" do
-      described_class.call(**initial_params)
-      expect do
-        described_class.call(**initial_params, ip: "9.9.9.9")
-      end.to change(Trackguard::PageView, :count).by(1)
+    it "persists tracking_layer: js when called with tracking_layer: js" do
+      described_class.call(**params, tracking_layer: "js")
+      expect(Trackguard::PageView.last.tracking_layer).to eq("js")
     end
   end
 

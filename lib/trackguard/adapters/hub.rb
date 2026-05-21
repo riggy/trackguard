@@ -36,8 +36,8 @@ module Trackguard
 
       protected
 
-      def perform_track_page_view(path:, ip:, user_agent:, referer:, session_id:, trace_id:, source:, initial:,
-                                  http_method:)
+      def perform_track_page_view(path:, ip:, user_agent:, referer:, session_id:, trace_id:, source:,
+                                  tracking_layer:, http_method:)
         # placeholder: hub tracking not yet implemented
       end
 

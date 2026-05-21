@@ -245,6 +245,48 @@ RSpec.describe Trackguard::DetectSuspiciousVisitorsJob, type: :job do
     end
   end
 
+  # --- backend-only detection ---
+
+  context "backend-only detection" do
+    it "flags a visitor with only backend-tracked views and no JS views" do
+      v = create(:visitor)
+      create_list(:page_view, 3, visitor: v, tracking_layer: "backend")
+      run_job
+      v.reload
+      expect(v.flagged_at).not_to be_nil
+      expect(v.flag_reason).to eq("backend-only request: no JS-layer page view detected")
+    end
+
+    it "does not flag a visitor who has at least one JS view" do
+      v = create(:visitor)
+      create_list(:page_view, 3, visitor: v, tracking_layer: "backend")
+      create(:page_view, visitor: v, tracking_layer: "js")
+      run_job
+      expect(v.reload.flagged_at).to be_nil
+    end
+
+    it "does not flag a visitor with only JS views" do
+      v = create(:visitor)
+      create_list(:page_view, 3, visitor: v, tracking_layer: "js")
+      run_job
+      expect(v.reload.flagged_at).to be_nil
+    end
+
+    it "does not flag a visitor with legacy nil tracking_layer views" do
+      v = create(:visitor)
+      create_list(:page_view, 3, visitor: v, tracking_layer: nil)
+      run_job
+      expect(v.reload.flagged_at).to be_nil
+    end
+
+    it "fires before the hard-threshold check — flags on a single backend-only view" do
+      v = create(:visitor)
+      create(:page_view, visitor: v, tracking_layer: "backend")
+      run_job
+      expect(v.reload.flagged_at).not_to be_nil
+    end
+  end
+
   # --- probe path detection ---
 
   context "probe path detection" do

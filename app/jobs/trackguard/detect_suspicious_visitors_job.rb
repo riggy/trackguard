@@ -24,7 +24,7 @@ module Trackguard
                          .joins(:visitor)
                          .merge(Visitor.unflagged)
                          .preload(visitor: :whitelisted_ip)
-                         .select(:visitor_id, :session_id, :referer, :path, :trace_id)
+                         .select(:visitor_id, :session_id, :referer, :path, :trace_id, :tracking_layer)
                          .group_by(&:visitor)
 
       return if views_by_visitor.empty?
@@ -43,6 +43,11 @@ module Trackguard
       return if visitor.whitelisted_ip&.active?
 
       name = name_from_ua(visitor.user_agent)
+
+      if views.any? { |pv| pv.tracking_layer == "backend" } && views.none? { |pv| pv.tracking_layer == "js" }
+        flag!(visitor, "backend-only request: no JS-layer page view detected", name: name)
+        return
+      end
 
       if count >= HARD_FLAG_THRESHOLD
         flag!(visitor, "#{count} page views in 24h (hard flag threshold)", name: name)
