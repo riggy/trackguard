@@ -12,7 +12,7 @@ module Trackguard
       end
 
       def valid_api_token?
-        expected = Trackguard.api_token
+        expected = Trackguard.local_api_token
         return false unless expected.present?
 
         token = request.headers["Authorization"]&.then { |h| h[/\ABearer (.+)\z/, 1] }

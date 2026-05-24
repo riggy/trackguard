@@ -91,7 +91,7 @@ Trackguard.configure do |config|
   config.back_label = "Back to Dashboard"
 
   # Optional: bearer token for API requests to /page_views
-  config.api_token = ENV["TRACKGUARD_API_TOKEN"]
+  config.local_api_token = ENV["TRACKGUARD_API_TOKEN"]
 
   # Optional: rack-attack throttle (default: 100 req / 60 sec per IP)
   config.throttle_limit  = 100

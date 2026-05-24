@@ -62,8 +62,8 @@ RSpec.describe "GET /admin/analytics", type: :request do
   end
 
   context "with bearer token authentication" do
-    before { Trackguard.api_token = "secret-token" }
-    after  { Trackguard.instance_variable_set(:@api_token, nil) }
+    before { Trackguard.local_api_token = "secret-token" }
+    after  { Trackguard.instance_variable_set(:@local_api_token, nil) }
 
     context "and admin auth configured to reject" do
       before { Trackguard.authenticate_admin_with = proc { head :unauthorized } }

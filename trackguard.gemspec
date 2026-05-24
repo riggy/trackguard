@@ -15,4 +15,5 @@ Gem::Specification.new do |s|
   s.add_dependency "rack-attack"
   s.add_dependency "rails", ">= 8.1"
   s.metadata["rubygems_mfa_required"] = "true"
+  s.metadata["changelog_uri"]         = "https://github.com/riggy/trackguard/blob/main/CHANGELOG.md"
 end

@@ -9,7 +9,7 @@ require "trackguard/adapters/hub"
 
 module Trackguard
   class << self
-    attr_writer :authenticate_admin_with, :admin_layout, :admin_path, :back_label, :api_token, :throttle_limit,
+    attr_writer :authenticate_admin_with, :admin_layout, :admin_path, :back_label, :local_api_token, :throttle_limit,
                 :throttle_period, :hub_secret_key, :hub_api_key, :hub_rules_ttl
     attr_accessor :hub_url
 
@@ -29,8 +29,8 @@ module Trackguard
       @back_label ||= "Back to app"
     end
 
-    def api_token
-      @api_token.to_s
+    def local_api_token
+      @local_api_token.to_s
     end
 
     def throttle_limit
