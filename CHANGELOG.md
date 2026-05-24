@@ -5,7 +5,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [Unreleased] — 0.28.0
+## [0.28.0] — 2026-05-24
 
 ### Added
 - `suspicious_state` column on `Visitor` (`normal` / `suspicious` / `blocked`) with migration template
