@@ -23,6 +23,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Expanded `FLAGGED_BY` constant; detection job now records `"Recurring Job"` as flagger
 
 ### Changed
+- `api_token` config renamed to `local_api_token` to distinguish it from `hub_api_key`
 - Backend-only page views (no paired JS view) now set state to `suspicious` rather than immediately blocking;
   subsequent job runs escalate to `blocked` or recover to `normal` based on new view patterns
 - Detection job continues analysing after marking a visitor suspicious — a single run can still
