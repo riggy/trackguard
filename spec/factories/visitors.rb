@@ -8,9 +8,15 @@ FactoryBot.define do
     last_seen_at  { Time.current }
 
     trait :flagged do
-      flagged_at  { Time.current }
-      flag_reason { "suspicious activity" }
-      flagged_by  { Trackguard::Visitor::FLAGGED_BY.first }
+      suspicious_state { "blocked" }
+      flagged_at       { Time.current }
+      flag_reason      { "suspicious activity" }
+      flagged_by       { Trackguard::Visitor::FLAGGED_BY.first }
+    end
+
+    trait :suspicious do
+      suspicious_state    { "suspicious" }
+      suspicious_since_at { Time.current }
     end
   end
 end

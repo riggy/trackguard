@@ -291,6 +291,10 @@
   background: rgba(239, 68, 68, 0.05);
 }
 
+.tg-row--suspicious {
+  background: rgba(251, 191, 36, 0.1);
+}
+
 .tg-row--whitelisted {
   background: rgba(34, 197, 94, 0.05);
 }
@@ -371,6 +375,13 @@
   width: 1rem;
   height: 1rem;
   color: #ef4444;
+  vertical-align: middle;
+}
+
+.tg-suspicious-icon {
+  width: 1rem;
+  height: 1rem;
+  color: #f59e0b;
   vertical-align: middle;
 }
 
@@ -456,6 +467,8 @@
 .tg-dl__def--break { word-break: break-all; }
 
 .tg-dl__def--flagged { color: #dc2626; }
+
+.tg-dl__def--suspicious { color: #d97706; }
 
 .tg-dl__def--muted { color: #9ca3af; }
 

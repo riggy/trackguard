@@ -20,6 +20,8 @@ module Trackguard
       migration_template "create_trackguard_blocked_paths.rb", "db/migrate/create_trackguard_blocked_paths.rb"
       migration_template "add_tracking_layer_to_trackguard_visits.rb",
                          "db/migrate/add_tracking_layer_to_trackguard_visits.rb"
+      migration_template "add_suspicious_state_to_trackguard_visitors.rb",
+                         "db/migrate/add_suspicious_state_to_trackguard_visitors.rb"
     end
 
     def print_next_steps

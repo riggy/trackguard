@@ -64,6 +64,7 @@ module Trackguard
         {
           path: view.path,
           ip: view.visitor&.ip,
+          suspicious_state: view.visitor.suspicious_state,
           flagged_at: view.visitor.flagged_at,
           flagged_by: view.visitor.flagged_by,
           whitelisted: view.visitor.whitelisted_ip&.active? || false,

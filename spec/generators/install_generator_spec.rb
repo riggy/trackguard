@@ -33,15 +33,15 @@ RSpec.describe Trackguard::InstallGenerator do
     migrations.find { |f| f.include?(name) }
   end
 
-  it "creates exactly six migration files" do
+  it "creates exactly seven migration files" do
     run_generator
-    expect(migrations.length).to eq(6)
+    expect(migrations.length).to eq(7)
   end
 
   it "is idempotent — re-running skips already-existing migrations" do
     run_generator
     run_generator
-    expect(migrations.length).to eq(6)
+    expect(migrations.length).to eq(7)
   end
 
   it "gives each migration a valid timestamp-based filename" do
@@ -155,6 +155,21 @@ RSpec.describe Trackguard::InstallGenerator do
       expect(content).to include("class CreateTrackguardBlockedPaths < ActiveRecord::Migration")
       expect(content).to include("create_table :trackguard_blocked_paths")
       expect(content).to include("add_index :trackguard_blocked_paths, :pattern, unique: true")
+    end
+  end
+
+  describe "add_suspicious_state_to_trackguard_visitors migration" do
+    before { run_generator }
+
+    it "is generated" do
+      expect(migration_named("add_suspicious_state_to_trackguard_visitors")).not_to be_nil
+    end
+
+    it "adds suspicious_state and suspicious_since_at columns" do
+      content = File.read(migration_named("add_suspicious_state_to_trackguard_visitors"))
+      expect(content).to include("class AddSuspiciousStateToTrackguardVisitors < ActiveRecord::Migration")
+      expect(content).to include(":suspicious_state")
+      expect(content).to include(":suspicious_since_at")
     end
   end
 

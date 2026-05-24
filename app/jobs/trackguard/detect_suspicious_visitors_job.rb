@@ -44,23 +44,29 @@ module Trackguard
 
       name = name_from_ua(visitor.user_agent)
 
-      if views.any? { |pv| pv.tracking_layer == "backend" } && views.none? { |pv| pv.tracking_layer == "js" }
-        flag!(visitor, "backend-only request: no JS-layer page view detected", name: name)
-        return
+      if visitor.suspicious?
+        new_views = PageView
+                    .where(visitor: visitor)
+                    .where("created_at > ?", visitor.suspicious_since_at)
+                    .select(:tracking_layer, :trace_id)
+        result = evaluate_suspicious_escalation(visitor, new_views)
+        return if %i[blocked recovered].include?(result)
+      elsif views.any?(&:backend_layer?) && views.none?(&:js_layer?)
+        mark_suspicious!(visitor, name)
       end
 
       if count >= HARD_FLAG_THRESHOLD
-        flag!(visitor, "#{count} page views in 24h (hard flag threshold)", name: name)
+        mark_blocked!(visitor, "#{count} page views in 24h (hard flag threshold)", name: name)
         return
       end
 
       if (reason = ua_flag_reason(visitor.user_agent))
-        flag!(visitor, reason, name: name)
+        mark_blocked!(visitor, reason, name: name)
         return
       end
 
       if (path = probe_path_hit(views))
-        flag!(visitor, "probe path hit: #{path}", name: name)
+        mark_blocked!(visitor, "probe path hit: #{path}", name: name)
         return
       end
 
@@ -69,7 +75,7 @@ module Trackguard
       return if count < MIN_VIEWS
 
       if views.all? { |pv| pv.session_id.nil? && pv.referer.nil? } && views.map(&:path).uniq.size == 1
-        flag!(visitor, "no session, no referrer, single path hit", name: name)
+        mark_blocked!(visitor, "no session, no referrer, single path hit", name: name)
         return
       end
 
@@ -91,9 +97,33 @@ module Trackguard
 
       return if score < FLAG_SCORE_THRESHOLD
 
-      flag!(visitor, reasons.join("; "), name: name)
+      mark_blocked!(visitor, reasons.join("; "), name: name)
     end
     # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
+
+    def evaluate_suspicious_escalation(visitor, new_views)
+      return :unchanged if new_views.empty?
+
+      js_ids = new_views.select { |pv| pv.tracking_layer == "js" }.map(&:trace_id).compact
+
+      if any_unpaired_backend?(new_views, js_ids)
+        mark_blocked!(visitor, "continued backend-only visits since suspicious flag")
+        :blocked
+      elsif paired_backend_trace_ids(new_views, js_ids).any?
+        mark_normal!(visitor)
+        :recovered
+      else
+        :unchanged
+      end
+    end
+
+    def any_unpaired_backend?(views, js_trace_ids)
+      views.any? { |pv| pv.backend_layer? && !js_trace_ids.include?(pv.trace_id) }
+    end
+
+    def paired_backend_trace_ids(views, js_trace_ids)
+      views.select(&:backend_layer?).map(&:trace_id).compact & js_trace_ids
+    end
 
     def flag_shared_trace_id_visitors(cutoff)
       shared = PageView
@@ -113,8 +143,8 @@ module Trackguard
         .where("wi.id IS NULL OR wi.expires_at <= ?", Time.current)
         .distinct
         .each do |visitor|
-          flag!(visitor, "trace_id shared across multiple visitors (cross-visitor bot detected)",
-                name: name_from_ua(visitor.user_agent))
+          mark_blocked!(visitor, "trace_id shared across multiple visitors (cross-visitor bot detected)",
+                        name: name_from_ua(visitor.user_agent))
         end
     end
 
@@ -130,8 +160,27 @@ module Trackguard
       "malformed user-agent (duplicate)" if user_agent.scan("Mozilla/5.0").size > 1
     end
 
-    def flag!(visitor, reason, name: nil)
-      visitor.update!(flagged_at: Time.current, flag_reason: reason, flagged_by: "Recurring Job", name: name)
+    def mark_suspicious!(visitor, name)
+      return if visitor.suspicious? || visitor.blocked?
+
+      visitor.update!(suspicious_state: "suspicious", suspicious_since_at: Time.current, name: name)
+    end
+
+    def mark_normal!(visitor)
+      return if visitor.normal? || visitor.blocked?
+
+      visitor.update!(suspicious_state: "normal", suspicious_since_at: nil)
+    end
+
+    def mark_blocked!(visitor, reason, name: nil)
+      visitor.update!(
+        suspicious_state: "blocked",
+        flagged_at: Time.current,
+        flag_reason: reason,
+        flagged_by: "Recurring Job",
+        suspicious_since_at: nil,
+        name: name
+      )
     end
 
     def name_from_ua(user_agent)

@@ -17,6 +17,8 @@ ActiveRecord::Schema.define do
     t.string   :flag_reason
     t.string   :flagged_by
     t.string   :name
+    t.string   :suspicious_state, null: false, default: "normal"
+    t.datetime :suspicious_since_at
     t.timestamps
   end
 

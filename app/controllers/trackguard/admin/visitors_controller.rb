@@ -16,9 +16,11 @@ module Trackguard
       # rubocop:disable Metrics/AbcSize
       def flag
         if @visitor.update(
+          suspicious_state: "blocked",
           flagged_at: Time.current,
           flag_reason: params[:flag_reason].presence,
           flagged_by: params[:flagged_by].presence || Visitor::FLAGGED_BY.first,
+          suspicious_since_at: nil,
           name: params[:name].presence || BlockedUserAgent.matching_pattern(@visitor.user_agent)
         )
           respond_to do |format|
@@ -35,7 +37,8 @@ module Trackguard
       # rubocop:enable Metrics/AbcSize
 
       def unflag
-        @visitor.update!(flagged_at: nil, flag_reason: nil, flagged_by: nil)
+        @visitor.update!(suspicious_state: "normal", suspicious_since_at: nil,
+                         flagged_at: nil, flag_reason: nil, flagged_by: nil)
         respond_to do |format|
           format.html { redirect_back_or_to after_action_path }
           format.json { render json: { status: "ok", ip: @visitor.ip } }
