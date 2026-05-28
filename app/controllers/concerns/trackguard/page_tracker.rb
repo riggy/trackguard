@@ -15,7 +15,7 @@ module Trackguard
     private
 
     def set_trace_id
-      @trace_id = SecureRandom.uuid
+      @trace_id = request.env["trackguard.trace_id"]
     end
 
     def track_page_view

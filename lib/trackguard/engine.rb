@@ -17,6 +17,10 @@ module Trackguard
       app.config.importmap.paths << root.join("config/importmap.rb") if app.config.respond_to?(:importmap)
     end
 
+    initializer "trackguard.trace_id_middleware" do |app|
+      app.middleware.use Trackguard::TraceIdMiddleware
+    end
+
     config.after_initialize do
       Trackguard::RackAttack.configure
     end

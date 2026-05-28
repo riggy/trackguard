@@ -7,6 +7,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- `TraceIdMiddleware` — Rack middleware that stamps every request with a UUID in `env["trackguard.trace_id"]`; `PageTracker` concern reads from env instead of generating its own
+
 ### Changed
 - Hub adapter fetches rules from `/api/backend/rules` (was `/api/rules`)
 - Hub adapter sends `X-Api-Key` header on rules requests alongside the existing Bearer token

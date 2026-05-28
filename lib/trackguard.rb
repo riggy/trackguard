@@ -3,6 +3,7 @@
 require "trackguard/version"
 require "trackguard/engine"
 require "trackguard/rack_attack"
+require "trackguard/trace_id_middleware"
 require "trackguard/adapters/base"
 require "trackguard/adapters/local"
 require "trackguard/adapters/hub"
