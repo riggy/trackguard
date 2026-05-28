@@ -6,7 +6,6 @@ module Trackguard
 
     config.to_prepare do
       ActionController::Base.helper Trackguard::ApplicationHelper
-      ActionController::Base.helper Trackguard::HubHelper
     end
 
     initializer "trackguard.assets" do |app|
