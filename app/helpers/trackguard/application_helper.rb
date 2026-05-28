@@ -1,10 +1,16 @@
 module Trackguard
   module ApplicationHelper
-    def trackguard_meta_tags
-      safe_join([
-                  tag.meta(name: "trackguard-url", content: trackguard.page_views_path),
-                  tag.meta(name: "trace-id", content: @trace_id)
-                ], "\n")
+    def trackguard_header_tags
+      tags = [ tag.meta(name: "trace-id", content: @trace_id) ]
+
+      case Trackguard.adapter
+      when Trackguard::Adapters::Local
+        tags << tag.meta(name: "trackguard-url", content: trackguard.page_views_path)
+      when Trackguard::Adapters::Hub
+        tags << tag.script(src: "#{Trackguard.hub_url}/track.js", data: { api_key: Trackguard.hub_api_key })
+      end
+
+      safe_join(tags, "\n")
     end
 
     def trackguard_nav_links
