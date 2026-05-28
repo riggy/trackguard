@@ -7,7 +7,9 @@ module Trackguard
       when Trackguard::Adapters::Local
         tags << tag.meta(name: "trackguard-url", content: trackguard.page_views_path)
       when Trackguard::Adapters::Hub
-        tags << tag.script(src: "#{Trackguard.hub_url}/track.js", data: { api_key: Trackguard.hub_api_key })
+        if Rails.env.production?
+          tags << tag.script(src: "#{Trackguard.hub_url}/track.js", data: { api_key: Trackguard.hub_api_key })
+        end
       end
 
       safe_join(tags, "\n")
