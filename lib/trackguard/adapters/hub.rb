@@ -55,22 +55,8 @@ module Trackguard
       end
 
       def fetch_rules_from_hub
-        uri = URI("#{Trackguard.hub_url}/api/rules")
-        request = Net::HTTP::Get.new(uri)
-        request["Authorization"] = "Bearer #{Trackguard.hub_secret_key}"
-        request["Accept"] = "application/json"
-
-        etag = Rails.cache.read(ETAG_KEY)
-        request["If-None-Match"] = etag if etag
-
-        response = Net::HTTP.start(
-          uri.hostname, uri.port,
-          use_ssl: uri.scheme == "https",
-          open_timeout: 3,
-          read_timeout: 5
-        ) do |http|
-          http.request(request)
-        end
+        uri = URI("#{Trackguard.hub_url}/api/backend/rules")
+        response = execute_http(uri, build_request(uri))
 
         return Rails.cache.read(STALE_KEY) || {} if response.is_a?(Net::HTTPNotModified)
 
@@ -79,6 +65,21 @@ module Trackguard
         fresh = JSON.parse(response.body, symbolize_names: true)
         Rails.cache.write(ETAG_KEY, response["ETag"], expires_in: 24.hours) if response["ETag"]
         fresh
+      end
+
+      def build_request(uri)
+        req = Net::HTTP::Get.new(uri)
+        req["Authorization"] = "Bearer #{Trackguard.hub_secret_key}"
+        req["X-Api-Key"] = Trackguard.hub_api_key
+        req["Accept"] = "application/json"
+        etag = Rails.cache.read(ETAG_KEY)
+        req["If-None-Match"] = etag if etag
+        req
+      end
+
+      def execute_http(uri, request)
+        opts = { use_ssl: uri.scheme == "https", open_timeout: 3, read_timeout: 5 }
+        Net::HTTP.start(uri.hostname, uri.port, **opts) { |http| http.request(request) }
       end
     end
   end

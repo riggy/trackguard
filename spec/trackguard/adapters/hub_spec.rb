@@ -5,7 +5,7 @@ require "rails_helper"
 RSpec.describe Trackguard::Adapters::Hub do
   let(:hub_url) { "https://hub.example.com" }
   let(:adapter) { described_class.new }
-  let(:rules_url) { "#{hub_url}/api/rules" }
+  let(:rules_url) { "#{hub_url}/api/backend/rules" }
 
   let(:rules_payload) do
     {
@@ -19,6 +19,7 @@ RSpec.describe Trackguard::Adapters::Hub do
   before do
     Trackguard.hub_url = hub_url
     Trackguard.hub_secret_key = "test-token"
+    Trackguard.hub_api_key = "test-api-key"
     [ described_class::CACHE_KEY, described_class::STALE_KEY, described_class::ETAG_KEY ].each do |key|
       Rails.cache.delete(key)
     end
@@ -27,13 +28,15 @@ RSpec.describe Trackguard::Adapters::Hub do
   after do
     Trackguard.hub_url = nil
     Trackguard.hub_secret_key = nil
+    Trackguard.hub_api_key = nil
   end
 
   def stub_hub(status: 200, body: rules_payload.to_json, etag: nil)
     headers = { "Content-Type" => "application/json" }
     headers["ETag"] = etag if etag
     stub_request(:get, rules_url)
-      .with(headers: { "Authorization" => "Bearer test-token", "Accept" => "application/json" })
+      .with(headers: { "Authorization" => "Bearer test-token", "X-Api-Key" => "test-api-key",
+                       "Accept" => "application/json" })
       .to_return(status: status, body: body, headers: headers)
   end
 
