@@ -10,6 +10,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - `TraceIdMiddleware` — Rack middleware that stamps every request with a UUID in `env["trackguard.trace_id"]`; `PageTracker` concern reads from env instead of generating its own
 
+### Changed
+- Hub `track.js` script tag is only injected in production environments
+
 ### Removed
 - `HubHelper` and `trackguard_hub_js_tag` — superseded by `trackguard_header_tags` in `ApplicationHelper`
 
