@@ -38,7 +38,11 @@ module Trackguard
 
       def perform_track_page_view(path:, ip:, user_agent:, referer:, session_id:, trace_id:, source:,
                                   tracking_layer:, http_method:)
-        # placeholder: hub tracking not yet implemented
+        Trackguard::Hub::SubmitPageViewJob.perform_later(
+          path: path, ip: ip, user_agent: user_agent, referer: referer,
+          session_id: session_id, trace_id: trace_id, source: source,
+          tracking_layer: tracking_layer, http_method: http_method
+        )
       end
 
       private
