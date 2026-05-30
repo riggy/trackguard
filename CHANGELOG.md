@@ -10,6 +10,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - `TraceIdMiddleware` — Rack middleware that stamps every request with a UUID in `env["trackguard.trace_id"]`; `PageTracker` concern reads from env instead of generating its own
 - `Trackguard::Hub::SubmitPageViewJob` — asynchronously POSTs page view data to the hub `/api/backend/page_views` endpoint; hub adapter `perform_track_page_view` now enqueues this job instead of being a no-op
+- `Trackguard::Hub::SubmitBlockedRequestJob` — asynchronously POSTs blocked request data to the hub `/api/backend/blocked_requests` endpoint; hub adapter `track_blocked_request` now enqueues this job
+- `Trackguard::TrackBlockedRequest` service object — extracts visitor upsert and `BlockedRequest` creation from `TrackBlockedRequestJob`; accepts `visitor_scope:` for multi-tenant hub usage
 
 ### Changed
 - Hub `track.js` script tag is only injected in production environments

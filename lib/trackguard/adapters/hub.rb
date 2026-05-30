@@ -31,7 +31,9 @@ module Trackguard
       end
 
       def track_blocked_request(ip:, user_agent:, path:, http_method:, block_reason:)
-        # placeholder: hub adapter does not persist blocked requests locally
+        Trackguard::Hub::SubmitBlockedRequestJob.perform_later(
+          ip: ip, user_agent: user_agent, path: path, http_method: http_method, block_reason: block_reason
+        )
       end
 
       protected

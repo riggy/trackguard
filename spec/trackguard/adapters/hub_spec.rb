@@ -99,11 +99,12 @@ RSpec.describe Trackguard::Adapters::Hub do
   end
 
   describe "#track_blocked_request" do
-    it "does not raise" do
+    it "enqueues SubmitBlockedRequestJob with the correct arguments" do
       expect do
         adapter.track_blocked_request(ip: "1.2.3.4", user_agent: "bot", path: "/", http_method: "GET",
                                       block_reason: "test")
-      end.not_to raise_error
+      end.to have_enqueued_job(Trackguard::Hub::SubmitBlockedRequestJob)
+        .with(ip: "1.2.3.4", user_agent: "bot", path: "/", http_method: "GET", block_reason: "test")
     end
   end
 
