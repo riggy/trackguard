@@ -49,3 +49,6 @@ Naming/VariableNumber:
 
 Lint/MissingSuper:
   Enabled: false
+
+Lint/UnusedMethodArgument:
+  AllowUnusedKeywordArguments: true

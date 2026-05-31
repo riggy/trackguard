@@ -32,7 +32,7 @@ module Trackguard
       protected
 
       def perform_track_page_view(path:, ip:, user_agent:, referer:, session_id:, trace_id:, source:,
-                                  tracking_layer:, http_method:)
+                                  tracking_layer:, http_method:, prefetch: false)
         TrackPageViewJob.perform_later(
           path: path,
           ip: ip,

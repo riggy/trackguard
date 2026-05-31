@@ -98,6 +98,25 @@ RSpec.describe Trackguard::Adapters::Hub do
     end
   end
 
+  describe "#track_page_view" do
+    let(:page_view_args) do
+      { path: "/posts/1", ip: "1.2.3.4", user_agent: "Mozilla/5.0", referer: nil,
+        session_id: "sid", trace_id: "tid", source: nil, tracking_layer: "backend", http_method: "GET" }
+    end
+
+    it "enqueues SubmitPageViewJob for a normal request" do
+      stub_hub
+      expect { adapter.track_page_view(**page_view_args) }
+        .to have_enqueued_job(Trackguard::Hub::SubmitPageViewJob)
+    end
+
+    it "does not enqueue for a Turbo prefetch request" do
+      stub_hub
+      expect { adapter.track_page_view(**page_view_args, prefetch: true) }
+        .not_to have_enqueued_job(Trackguard::Hub::SubmitPageViewJob)
+    end
+  end
+
   describe "#track_blocked_request" do
     it "enqueues SubmitBlockedRequestJob with the correct arguments" do
       expect do

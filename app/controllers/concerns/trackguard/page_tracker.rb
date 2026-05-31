@@ -31,8 +31,14 @@ module Trackguard
         trace_id: @trace_id,
         source: extract_source,
         tracking_layer: "backend",
-        http_method: request.request_method
+        http_method: request.request_method,
+        prefetch: turbo_prefetch?
       )
+    end
+
+    def turbo_prefetch?
+      request.headers["Purpose"] == "prefetch" ||
+        request.headers["Sec-Purpose"]&.start_with?("prefetch")
     end
 
     def extract_source

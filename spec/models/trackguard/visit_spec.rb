@@ -4,6 +4,8 @@ require "rails_helper"
 
 RSpec.describe Trackguard::Visit, type: :model do
   describe "scopes" do
+    around { |e| travel_to(Time.current.noon, &e) }
+
     let!(:recent) { create(:page_view, created_at: 1.hour.ago) }
     let!(:old)    { create(:page_view, created_at: 60.days.ago) }
 
