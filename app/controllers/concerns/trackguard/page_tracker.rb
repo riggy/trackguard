@@ -38,7 +38,8 @@ module Trackguard
 
     def turbo_prefetch?
       request.headers["Purpose"] == "prefetch" ||
-        request.headers["Sec-Purpose"]&.start_with?("prefetch")
+        request.headers["Sec-Purpose"]&.start_with?("prefetch") ||
+        request.headers["X-Sec-Purpose"]&.start_with?("prefetch")
     end
 
     def extract_source
