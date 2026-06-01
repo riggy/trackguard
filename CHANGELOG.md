@@ -17,6 +17,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 - Hub `track.js` script tag is only injected in production environments
+- Stimulus `page_tracker_controller` is only registered via importmap when the local adapter is active; hub adapter installations no longer load the client-side tracker
 
 ### Removed
 - `HubHelper` and `trackguard_hub_js_tag` — superseded by `trackguard_header_tags` in `ApplicationHelper`
