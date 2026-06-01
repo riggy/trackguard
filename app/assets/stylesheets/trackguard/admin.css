@@ -240,6 +240,7 @@
 /* ── Table ─────────────────────────────────────────────────────────── */
 .tg-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 0.875rem;
   margin-bottom: 2rem;
@@ -269,6 +270,14 @@
   text-align: right;
   color: #9ca3af;
   font-weight: 400;
+  white-space: nowrap;
+  width: 3.5rem;
+}
+
+.tg-td--label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tg-td--break { word-break: break-all; }

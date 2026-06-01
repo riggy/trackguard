@@ -13,6 +13,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `Trackguard::Hub::SubmitBlockedRequestJob` — asynchronously POSTs blocked request data to the hub `/api/backend/blocked_requests` endpoint; hub adapter `track_blocked_request` now enqueues this job
 - `Trackguard::TrackBlockedRequest` service object — extracts visitor upsert and `BlockedRequest` creation from `TrackBlockedRequestJob`; accepts `visitor_scope:` for multi-tenant hub usage
 - Turbo prefetch suppression — `PageTracker` detects `Purpose: prefetch` / `Sec-Purpose: prefetch` headers via `turbo_prefetch?` and passes a `prefetch:` flag through the adapter interface; hub adapter skips enqueuing `SubmitPageViewJob` for prefetch requests
+- Dashboard stats panels truncate long URLs with ellipsis to prevent layout overflow
 
 ### Changed
 - Hub `track.js` script tag is only injected in production environments
