@@ -24,6 +24,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Hub adapter fetches rules from `/api/backend/rules` (was `/api/rules`)
 - Hub adapter sends `X-Api-Key` header on rules requests alongside the existing Bearer token
 
+### Fixed
+- `DetectSuspiciousVisitorsJob` whitelist check now falls back to an IP lookup when no `visitor_id` association exists on the `WhitelistedIp` record, and backfills the link on first match
+
 ### Deprecated
 - Direct configuration setters (`Trackguard.hub_url = ...`, `Trackguard.adapter = ...`, etc.) — use `Trackguard.configure { |c| c.hub_url = ... }` instead; direct assignment prints a `[DEPRECATED]` warning and will be removed in a future version
 

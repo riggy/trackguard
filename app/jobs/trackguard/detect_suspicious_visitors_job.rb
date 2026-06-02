@@ -40,7 +40,7 @@ module Trackguard
     def analyze_visitor(visitor, views)
       count = views.size
       return if count.zero?
-      return if visitor.whitelisted_ip&.active?
+      return if whitelisted?(visitor)
 
       name = name_from_ua(visitor.user_agent)
 
@@ -181,6 +181,15 @@ module Trackguard
         suspicious_since_at: nil,
         name: name
       )
+    end
+
+    def whitelisted?(visitor)
+      wl = visitor.whitelisted_ip
+      unless wl
+        wl = WhitelistedIp.active.find_by(ip: visitor.ip)
+        wl&.update!(visitor: visitor)
+      end
+      wl&.active?
     end
 
     def name_from_ua(user_agent)

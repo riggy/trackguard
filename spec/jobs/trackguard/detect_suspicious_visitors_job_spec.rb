@@ -171,6 +171,23 @@ RSpec.describe Trackguard::DetectSuspiciousVisitorsJob, type: :job do
     expect_blocked(v)
   end
 
+  it "skips flagging a visitor whose IP is whitelisted with no visitor_id link, and backfills the link" do
+    v  = create(:visitor)
+    wl = create(:whitelisted_ip, ip: v.ip)
+    create_list(:page_view, 50, visitor: v)
+    run_job
+    expect(v.reload.flagged_at).to be_nil
+    expect(wl.reload.visitor).to eq(v)
+  end
+
+  it "blocks a visitor whose IP-only whitelist entry has expired" do
+    v = create(:visitor)
+    create(:whitelisted_ip, :expired, ip: v.ip)
+    create_list(:page_view, 50, visitor: v)
+    run_job
+    expect_blocked(v)
+  end
+
   # --- cross-visitor trace_id sharing ---
 
   context "cross-visitor trace_id sharing" do
