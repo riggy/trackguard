@@ -8,6 +8,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `Trackguard.configure` block — preferred way to configure the gem; all settings are yielded via the module itself, replacing scattered direct assignments
+- `Trackguard::ConfigurationError` — new error class raised for invalid configuration
+- `Trackguard::Adapters::Hub#validate!` — called automatically at boot via `after_initialize`; raises `Trackguard::ConfigurationError` with setup instructions and a link to `https://trackguard.dev` if `hub_url`, `hub_api_key`, or `hub_secret_key` are missing
 - `TraceIdMiddleware` — Rack middleware that stamps every request with a UUID in `env["trackguard.trace_id"]`; `PageTracker` concern reads from env instead of generating its own
 - `Trackguard::Hub::SubmitPageViewJob` — asynchronously POSTs page view data to the hub `/api/backend/page_views` endpoint; hub adapter `perform_track_page_view` now enqueues this job instead of being a no-op
 - `Trackguard::Hub::SubmitBlockedRequestJob` — asynchronously POSTs blocked request data to the hub `/api/backend/blocked_requests` endpoint; hub adapter `track_blocked_request` now enqueues this job
@@ -18,13 +21,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Hub `track.js` script tag is only injected in production environments
 - Stimulus `page_tracker_controller` is only registered via importmap when the local adapter is active; hub adapter installations no longer load the client-side tracker
+- Hub adapter fetches rules from `/api/backend/rules` (was `/api/rules`)
+- Hub adapter sends `X-Api-Key` header on rules requests alongside the existing Bearer token
+
+### Deprecated
+- Direct configuration setters (`Trackguard.hub_url = ...`, `Trackguard.adapter = ...`, etc.) — use `Trackguard.configure { |c| c.hub_url = ... }` instead; direct assignment prints a `[DEPRECATED]` warning and will be removed in a future version
 
 ### Removed
 - `HubHelper` and `trackguard_hub_js_tag` — superseded by `trackguard_header_tags` in `ApplicationHelper`
-
-### Changed
-- Hub adapter fetches rules from `/api/backend/rules` (was `/api/rules`)
-- Hub adapter sends `X-Api-Key` header on rules requests alongside the existing Bearer token
 
 ---
 

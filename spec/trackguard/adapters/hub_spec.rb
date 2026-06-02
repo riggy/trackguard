@@ -17,18 +17,22 @@ RSpec.describe Trackguard::Adapters::Hub do
   end
 
   before do
-    Trackguard.hub_url = hub_url
-    Trackguard.hub_secret_key = "test-token"
-    Trackguard.hub_api_key = "test-api-key"
+    Trackguard.configure do |c|
+      c.hub_url        = hub_url
+      c.hub_secret_key = "test-token"
+      c.hub_api_key    = "test-api-key"
+    end
     [ described_class::CACHE_KEY, described_class::STALE_KEY, described_class::ETAG_KEY ].each do |key|
       Rails.cache.delete(key)
     end
   end
 
   after do
-    Trackguard.hub_url = nil
-    Trackguard.hub_secret_key = nil
-    Trackguard.hub_api_key = nil
+    Trackguard.configure do |c|
+      c.hub_url        = nil
+      c.hub_secret_key = nil
+      c.hub_api_key    = nil
+    end
   end
 
   def stub_hub(status: 200, body: rules_payload.to_json, etag: nil)
@@ -198,6 +202,51 @@ RSpec.describe Trackguard::Adapters::Hub do
       stub_hub(etag: '"new-etag"')
       adapter.blocked_user_agent?("bot")
       expect(Rails.cache.read(described_class::STALE_KEY)).to eq(rules_payload)
+    end
+  end
+
+  describe "#validate!" do
+    it "does not raise when all credentials are present" do
+      expect { adapter.validate! }.not_to raise_error
+    end
+
+    it "raises ConfigurationError when hub_url is missing" do
+      Trackguard.configure { |c| c.hub_url = nil }
+      expect { adapter.validate! }.to raise_error(Trackguard::ConfigurationError, /hub_url/)
+    end
+
+    it "raises ConfigurationError when hub_api_key is missing" do
+      Trackguard.configure { |c| c.hub_api_key = nil }
+      expect { adapter.validate! }.to raise_error(Trackguard::ConfigurationError, /hub_api_key/)
+    end
+
+    it "raises ConfigurationError when hub_secret_key is missing" do
+      Trackguard.configure { |c| c.hub_secret_key = nil }
+      expect { adapter.validate! }.to raise_error(Trackguard::ConfigurationError, /hub_secret_key/)
+    end
+
+    context "when all credentials are missing" do
+      before do
+        Trackguard.configure do |c|
+          c.hub_url        = nil
+          c.hub_secret_key = nil
+          c.hub_api_key    = nil
+        end
+      end
+
+      it "lists every missing field" do
+        expect { adapter.validate! }.to raise_error(Trackguard::ConfigurationError) do |error|
+          expect(error.message).to include("hub_url", "hub_api_key", "hub_secret_key")
+        end
+      end
+
+      it "includes a link to trackguard.dev" do
+        expect { adapter.validate! }.to raise_error(Trackguard::ConfigurationError, /trackguard\.dev/)
+      end
+
+      it "mentions the local adapter as an alternative" do
+        expect { adapter.validate! }.to raise_error(Trackguard::ConfigurationError, /local/)
+      end
     end
   end
 end

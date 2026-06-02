@@ -3,6 +3,8 @@
 module Trackguard
   module Adapters
     class Base
+      def validate! = nil
+
       def blocked_user_agent?(user_agent) = raise NotImplementedError, "#{self.class}#blocked_user_agent?"
       def blocked_path?(path)             = raise NotImplementedError, "#{self.class}#blocked_path?"
       def whitelisted_ip?(ip)             = raise NotImplementedError, "#{self.class}#whitelisted_ip?"

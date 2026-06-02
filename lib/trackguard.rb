@@ -9,10 +9,79 @@ require "trackguard/adapters/local"
 require "trackguard/adapters/hub"
 
 module Trackguard
+  class ConfigurationError < StandardError; end
+
   class << self
-    attr_writer :authenticate_admin_with, :admin_layout, :admin_path, :back_label, :local_api_token, :throttle_limit,
-                :throttle_period, :hub_secret_key, :hub_api_key, :hub_rules_ttl
-    attr_accessor :hub_url
+    def configure
+      @_configuring = true
+      yield self
+    ensure
+      @_configuring = false
+    end
+
+    # Setters — use configure block; direct assignment is deprecated.
+
+    def authenticate_admin_with=(value)
+      deprecated_direct_setter(:authenticate_admin_with)
+      @authenticate_admin_with = value
+    end
+
+    def admin_layout=(value)
+      deprecated_direct_setter(:admin_layout)
+      @admin_layout = value
+    end
+
+    def admin_path=(value)
+      deprecated_direct_setter(:admin_path)
+      @admin_path = value
+    end
+
+    def back_label=(value)
+      deprecated_direct_setter(:back_label)
+      @back_label = value
+    end
+
+    def local_api_token=(value)
+      deprecated_direct_setter(:local_api_token)
+      @local_api_token = value
+    end
+
+    def throttle_limit=(value)
+      deprecated_direct_setter(:throttle_limit)
+      @throttle_limit = value
+    end
+
+    def throttle_period=(value)
+      deprecated_direct_setter(:throttle_period)
+      @throttle_period = value
+    end
+
+    def hub_url=(value)
+      deprecated_direct_setter(:hub_url)
+      @hub_url = value
+    end
+
+    def hub_secret_key=(value)
+      deprecated_direct_setter(:hub_secret_key)
+      @hub_secret_key = value
+    end
+
+    def hub_api_key=(value)
+      deprecated_direct_setter(:hub_api_key)
+      @hub_api_key = value
+    end
+
+    def hub_rules_ttl=(value)
+      deprecated_direct_setter(:hub_rules_ttl)
+      @hub_rules_ttl = value
+    end
+
+    def adapter=(value)
+      deprecated_direct_setter(:adapter)
+      @adapter = resolve_adapter(value)
+    end
+
+    # Readers
 
     def authenticate_admin_with
       @authenticate_admin_with ||= proc {}
@@ -42,19 +111,25 @@ module Trackguard
       @throttle_period ||= 60
     end
 
+    attr_reader :hub_url
+
     def hub_secret_key = @hub_secret_key.to_s
     def hub_api_key    = @hub_api_key.to_s
-    def hub_rules_ttl = @hub_rules_ttl ||= 5.minutes
+    def hub_rules_ttl  = @hub_rules_ttl ||= 5.minutes
 
     def adapter
       @adapter ||= Trackguard::Adapters::Local.new
     end
 
-    def adapter=(value)
-      @adapter = resolve_adapter(value)
-    end
-
     private
+
+    def deprecated_direct_setter(attr)
+      return if @_configuring
+
+      warn "[DEPRECATED] Trackguard.#{attr}= called directly. " \
+           "Use `Trackguard.configure { |c| c.#{attr} = ... }` instead. " \
+           "Direct assignment will be removed in a future version."
+    end
 
     def resolve_adapter(value)
       case value

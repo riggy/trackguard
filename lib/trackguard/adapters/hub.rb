@@ -10,6 +10,33 @@ module Trackguard
       STALE_KEY = "trackguard/hub_rules/stale"
       ETAG_KEY  = "trackguard/hub_rules/etag"
 
+      def validate!
+        missing = []
+        missing << "hub_url"        if Trackguard.hub_url.blank?
+        missing << "hub_api_key"    if Trackguard.hub_api_key.blank?
+        missing << "hub_secret_key" if Trackguard.hub_secret_key.blank?
+        return if missing.empty?
+
+        raise Trackguard::ConfigurationError, <<~MSG.strip
+          Trackguard Hub adapter is missing required credentials: #{missing.join(', ')}.
+
+          Set them in your initializer:
+
+              Trackguard.configure do |c|
+                c.adapter        = :hub
+                c.hub_url        = "https://your-project.trackguard.dev"
+                c.hub_api_key    = ENV["TRACKGUARD_API_KEY"]
+                c.hub_secret_key = ENV["TRACKGUARD_SECRET_KEY"]
+              end
+
+          Sign up at https://trackguard.dev to create a project and generate credentials.
+
+          To use local tracking instead (no external service needed):
+
+              Trackguard.configure { |c| c.adapter = :local }
+        MSG
+      end
+
       def blocked_user_agent?(user_agent)
         rules.fetch(:blocked_user_agents, []).any? do |p|
           user_agent.to_s.downcase.include?(p.downcase)

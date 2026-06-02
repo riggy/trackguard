@@ -21,6 +21,7 @@ module Trackguard
     end
 
     config.after_initialize do
+      Trackguard.adapter.validate!
       Trackguard::RackAttack.configure
     end
   end

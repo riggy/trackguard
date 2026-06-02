@@ -10,18 +10,18 @@ RSpec.describe "Trackguard.adapter" do
   end
 
   it "resolves a :local symbol to a Local instance" do
-    Trackguard.adapter = :local
+    Trackguard.configure { |c| c.adapter = :local }
     expect(Trackguard.adapter).to be_a(Trackguard::Adapters::Local)
   end
 
   it "instantiates a class reference" do
-    Trackguard.adapter = Trackguard::Adapters::Local
+    Trackguard.configure { |c| c.adapter = Trackguard::Adapters::Local }
     expect(Trackguard.adapter).to be_a(Trackguard::Adapters::Local)
   end
 
   it "stores a pre-built instance as-is" do
     instance = Trackguard::Adapters::Local.new
-    Trackguard.adapter = instance
+    Trackguard.configure { |c| c.adapter = instance }
     expect(Trackguard.adapter).to be(instance)
   end
 end
