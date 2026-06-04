@@ -24,19 +24,22 @@ A Rails Engine gem for visitor analytics and page view tracking. Designed to be 
 
 ## Installation
 
-Add to your `Gemfile`:
+**1. Add to your `Gemfile`:**
 
 ```ruby
 gem "trackguard"
 ```
 
-Mount the engine in `config/routes.rb`:
+**2. Mount the engine in `config/routes.rb`:**
 
 ```ruby
 mount Trackguard::Engine => "/"
 ```
 
-Run the install generator, migrate, and seed:
+Mounting is required. It exposes `POST /page_views` (the client-side tracking endpoint) and
+the `/admin` UI. Without it, neither route exists.
+
+**3. Run the install generator, migrate, and seed:**
 
 ```bash
 rails generate trackguard:install
@@ -45,18 +48,39 @@ rails trackguard:seed_blocked_user_agents
 rails trackguard:seed_blocked_paths
 ```
 
-The generator creates five individual migrations — one per table. The seed tasks populate
+The generator writes seven migrations: five that create tables and two that add columns.
+If any of those migration files already exist in your app (e.g. from a previous install),
+the generator will raise a conflict error. Pass `--skip` to silently skip the existing ones
+and only write the new ones:
+
+```bash
+rails generate trackguard:install --skip
+```
+
+The seed tasks populate
 `trackguard_blocked_user_agents` with known bot/scanner patterns and `trackguard_blocked_paths`
 with common path probes (WordPress, PHP shells, config leaks, etc.).
+
+**4. Add an initializer** (minimum: protect the admin UI):
+
+```ruby
+# config/initializers/trackguard.rb
+Trackguard.configure do |config|
+  config.authenticate_admin_with = -> { redirect_to root_path unless current_user&.admin? }
+end
+```
+
+See [Configuration](#configuration) for the full option list.
 
 ## Upgrading
 
 ### From a version with individual per-table migrations
 
-Re-run the install generator. It skips any migrations that already exist and only writes new ones:
+Re-run the install generator with `--skip` so it ignores migrations you already have and
+only writes new ones:
 
 ```bash
-rails generate trackguard:install
+rails generate trackguard:install --skip
 rails db:migrate
 rails trackguard:seed_blocked_paths
 ```
@@ -79,7 +103,7 @@ before proceeding.
 
 ## Configuration
 
-Create an initializer (e.g. `config/initializers/trackguard.rb`):
+All options in `config/initializers/trackguard.rb`:
 
 ```ruby
 Trackguard.configure do |config|
@@ -97,6 +121,38 @@ Trackguard.configure do |config|
   config.throttle_limit  = 100
   config.throttle_period = 60
 end
+```
+
+### Admin authentication examples
+
+`authenticate_admin_with` is called as a `before_action` inside the admin controllers.
+The lambda runs in the context of the controller, so any helper available in a
+`before_action` works here.
+
+**Devise** — redirect unless the current user has an `admin` flag:
+
+```ruby
+config.authenticate_admin_with = -> {
+  redirect_to root_path unless current_user&.admin?
+}
+```
+
+**HTTP Basic Auth** — no user model required:
+
+```ruby
+config.authenticate_admin_with = -> {
+  authenticate_or_request_with_http_basic("Trackguard Admin") do |name, password|
+    name == ENV["ADMIN_NAME"] && password == ENV["ADMIN_PASSWORD"]
+  end
+}
+```
+
+**Warden / Devise with a specific role** — halt if not signed in or not an admin:
+
+```ruby
+config.authenticate_admin_with = -> {
+  authenticate_admin_user! # your Devise scope
+}
 ```
 
 ## Usage
