@@ -55,13 +55,13 @@ module Trackguard
         rules.fetch(:flagged_ips, []).include?(ip)
       end
 
-      def track_blocked_request(ip:, user_agent:, path:, http_method:, block_reason:)
+      protected
+
+      def perform_track_blocked_request(ip:, user_agent:, path:, http_method:, block_reason:)
         Trackguard::Hub::SubmitBlockedRequestJob.perform_later(
           ip: ip, user_agent: user_agent, path: path, http_method: http_method, block_reason: block_reason
         )
       end
-
-      protected
 
       def perform_track_page_view(path:, ip:, user_agent:, referer:, session_id:, trace_id:, source:,
                                   tracking_layer:, http_method:, prefetch: false)

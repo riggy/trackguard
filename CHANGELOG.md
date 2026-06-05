@@ -8,6 +8,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `disable_on_development` configuration option (defaults to `true`) — when enabled, all tracking is suppressed in the Rails development environment; `Trackguard.tracking_enabled?` is the single predicate checked by adapters, `trackguard_header_tags`, and the `PageTracker` concern
 - `Trackguard.configure` block — preferred way to configure the gem; all settings are yielded via the module itself, replacing scattered direct assignments
 - `Trackguard::ConfigurationError` — new error class raised for invalid configuration
 - `Trackguard::Adapters::Hub#validate!` — called automatically at boot via `after_initialize`; raises `Trackguard::ConfigurationError` with setup instructions and a link to `https://trackguard.dev` if `hub_url`, `hub_api_key`, or `hub_secret_key` are missing

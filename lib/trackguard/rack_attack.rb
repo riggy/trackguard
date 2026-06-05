@@ -4,7 +4,6 @@ require "rack/attack"
 
 module Trackguard
   module RackAttack
-    # rubocop:disable Metrics/MethodLength
     def self.configure
       ::Rack::Attack.safelist("trackguard/allow local") do |req|
         [ "127.0.0.1", "::1" ].include?(req.ip)
@@ -34,7 +33,6 @@ module Trackguard
 
       subscribe_to_blocked_requests
     end
-    # rubocop:enable Metrics/MethodLength
 
     def self.subscribe_to_blocked_requests
       @subscribe_to_blocked_requests ||= ActiveSupport::Notifications.subscribe("rack.attack") do |*, payload|

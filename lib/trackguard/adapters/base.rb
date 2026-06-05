@@ -12,6 +12,7 @@ module Trackguard
 
       def track_page_view(path:, ip:, user_agent:, referer:, session_id:, trace_id:, source:, tracking_layer:,
                           http_method:, prefetch: false)
+        return unless Trackguard.tracking_enabled?
         return if blocked_user_agent?(user_agent)
         return if blocked_path?(path)
         return if path.blank? || path.start_with?(Trackguard.admin_path)
@@ -24,7 +25,10 @@ module Trackguard
       end
 
       def track_blocked_request(ip:, user_agent:, path:, http_method:, block_reason:)
-        raise NotImplementedError, "#{self.class}#track_blocked_request"
+        return unless Trackguard.tracking_enabled?
+
+        perform_track_blocked_request(ip: ip, user_agent: user_agent, path: path,
+                                      http_method: http_method, block_reason: block_reason)
       end
 
       protected
@@ -32,6 +36,10 @@ module Trackguard
       def perform_track_page_view(path:, ip:, user_agent:, referer:, session_id:, trace_id:, source:,
                                   tracking_layer:, http_method:, prefetch: false)
         raise NotImplementedError, "#{self.class}#perform_track_page_view"
+      end
+
+      def perform_track_blocked_request(ip:, user_agent:, path:, http_method:, block_reason:)
+        raise NotImplementedError, "#{self.class}#perform_track_blocked_request"
       end
     end
   end

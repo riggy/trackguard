@@ -81,6 +81,11 @@ module Trackguard
       @adapter = resolve_adapter(value)
     end
 
+    def disable_on_development=(value)
+      deprecated_direct_setter(:disable_on_development)
+      @disable_on_development = value
+    end
+
     # Readers
 
     def authenticate_admin_with
@@ -121,6 +126,14 @@ module Trackguard
 
     def adapter
       @adapter ||= Trackguard::Adapters::Local.new
+    end
+
+    def disable_on_development
+      @disable_on_development.nil? || @disable_on_development
+    end
+
+    def tracking_enabled?
+      !disable_on_development || !Rails.env.development?
     end
 
     private

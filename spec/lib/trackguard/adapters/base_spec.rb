@@ -25,4 +25,23 @@ RSpec.describe Trackguard::Adapters::Base do
       )
     end.to raise_error(NotImplementedError)
   end
+
+  context "when tracking is disabled" do
+    before { allow(Trackguard).to receive(:tracking_enabled?).and_return(false) }
+
+    it "does not call perform_track_page_view" do
+      expect(adapter).not_to receive(:perform_track_page_view)
+      adapter.track_page_view(
+        path: "/", ip: "1.2.3.4", user_agent: "Mozilla", referer: nil,
+        session_id: nil, trace_id: nil, source: nil, tracking_layer: "backend", http_method: "GET"
+      )
+    end
+
+    it "does not call perform_track_blocked_request" do
+      expect(adapter).not_to receive(:perform_track_blocked_request)
+      adapter.track_blocked_request(
+        ip: "1.2.3.4", user_agent: "bot", path: "/", http_method: "GET", block_reason: "test"
+      )
+    end
+  end
 end

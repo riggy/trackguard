@@ -1,6 +1,8 @@
 module Trackguard
   module ApplicationHelper
     def trackguard_header_tags
+      return "".html_safe unless Trackguard.tracking_enabled?
+
       tags = [ tag.meta(name: "trace-id", content: @trace_id) ]
 
       case Trackguard.adapter

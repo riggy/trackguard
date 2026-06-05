@@ -25,3 +25,32 @@ RSpec.describe "Trackguard.adapter" do
     expect(Trackguard.adapter).to be(instance)
   end
 end
+
+RSpec.describe "Trackguard.tracking_enabled?" do
+  after { Trackguard.instance_variable_set(:@disable_on_development, nil) }
+
+  context "when not in development" do
+    it "returns true regardless of disable_on_development" do
+      Trackguard.configure { |c| c.disable_on_development = true }
+      expect(Trackguard.tracking_enabled?).to be true
+    end
+  end
+
+  context "when in development" do
+    before { allow(Rails.env).to receive(:development?).and_return(true) }
+
+    it "returns false by default (disable_on_development defaults to true)" do
+      expect(Trackguard.tracking_enabled?).to be false
+    end
+
+    it "returns false when disable_on_development is explicitly true" do
+      Trackguard.configure { |c| c.disable_on_development = true }
+      expect(Trackguard.tracking_enabled?).to be false
+    end
+
+    it "returns true when disable_on_development is false" do
+      Trackguard.configure { |c| c.disable_on_development = false }
+      expect(Trackguard.tracking_enabled?).to be true
+    end
+  end
+end

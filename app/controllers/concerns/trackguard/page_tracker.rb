@@ -19,6 +19,7 @@ module Trackguard
     end
 
     def track_page_view
+      return unless Trackguard.tracking_enabled?
       return unless request.get? || request.head?
       return unless request.format.html?
 

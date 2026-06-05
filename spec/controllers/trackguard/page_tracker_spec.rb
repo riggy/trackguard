@@ -76,4 +76,22 @@ RSpec.describe Trackguard::PageTracker, type: :controller do
       expect { get :index }.not_to have_enqueued_job
     end
   end
+
+  context "when tracking is disabled" do
+    controller(ApplicationController) do
+      include Trackguard::PageTracker
+
+      track_page_views
+
+      def index
+        head :ok
+      end
+    end
+
+    before { allow(Trackguard).to receive(:tracking_enabled?).and_return(false) }
+
+    it "does not enqueue any job" do
+      expect { get :index }.not_to have_enqueued_job
+    end
+  end
 end
