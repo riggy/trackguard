@@ -1,4 +1,6 @@
 Trackguard::Engine.routes.draw do
+  next if Trackguard.adapter.is_a?(Trackguard::Adapters::Hub)
+
   post "/page_views", to: "page_views#create"
 
   scope "/admin", module: "admin" do

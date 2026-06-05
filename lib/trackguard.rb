@@ -111,7 +111,9 @@ module Trackguard
       @throttle_period ||= 60
     end
 
-    attr_reader :hub_url
+    def hub_url
+      @hub_url ||= "https://app.trackguard.dev"
+    end
 
     def hub_secret_key = @hub_secret_key.to_s
     def hub_api_key    = @hub_api_key.to_s

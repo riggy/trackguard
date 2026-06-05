@@ -210,11 +210,6 @@ RSpec.describe Trackguard::Adapters::Hub do
       expect { adapter.validate! }.not_to raise_error
     end
 
-    it "raises ConfigurationError when hub_url is missing" do
-      Trackguard.configure { |c| c.hub_url = nil }
-      expect { adapter.validate! }.to raise_error(Trackguard::ConfigurationError, /hub_url/)
-    end
-
     it "raises ConfigurationError when hub_api_key is missing" do
       Trackguard.configure { |c| c.hub_api_key = nil }
       expect { adapter.validate! }.to raise_error(Trackguard::ConfigurationError, /hub_api_key/)
@@ -228,7 +223,6 @@ RSpec.describe Trackguard::Adapters::Hub do
     context "when all credentials are missing" do
       before do
         Trackguard.configure do |c|
-          c.hub_url        = nil
           c.hub_secret_key = nil
           c.hub_api_key    = nil
         end
@@ -236,7 +230,7 @@ RSpec.describe Trackguard::Adapters::Hub do
 
       it "lists every missing field" do
         expect { adapter.validate! }.to raise_error(Trackguard::ConfigurationError) do |error|
-          expect(error.message).to include("hub_url", "hub_api_key", "hub_secret_key")
+          expect(error.message).to include("hub_api_key", "hub_secret_key")
         end
       end
 

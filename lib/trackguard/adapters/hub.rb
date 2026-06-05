@@ -12,7 +12,6 @@ module Trackguard
 
       def validate!
         missing = []
-        missing << "hub_url"        if Trackguard.hub_url.blank?
         missing << "hub_api_key"    if Trackguard.hub_api_key.blank?
         missing << "hub_secret_key" if Trackguard.hub_secret_key.blank?
         return if missing.empty?
@@ -24,7 +23,6 @@ module Trackguard
 
               Trackguard.configure do |c|
                 c.adapter        = :hub
-                c.hub_url        = "https://your-project.trackguard.dev"
                 c.hub_api_key    = ENV["TRACKGUARD_API_KEY"]
                 c.hub_secret_key = ENV["TRACKGUARD_SECRET_KEY"]
               end
