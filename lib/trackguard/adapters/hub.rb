@@ -11,6 +11,8 @@ module Trackguard
       ETAG_KEY  = "trackguard/hub_rules/etag"
 
       def validate!
+        return unless Trackguard.tracking_enabled?
+
         missing = []
         missing << "hub_api_key"    if Trackguard.hub_api_key.blank?
         missing << "hub_secret_key" if Trackguard.hub_secret_key.blank?

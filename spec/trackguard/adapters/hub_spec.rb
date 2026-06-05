@@ -210,6 +210,15 @@ RSpec.describe Trackguard::Adapters::Hub do
       expect { adapter.validate! }.not_to raise_error
     end
 
+    it "does not raise when tracking is disabled, even with missing credentials" do
+      Trackguard.configure do |c|
+        c.hub_api_key    = nil
+        c.hub_secret_key = nil
+      end
+      allow(Trackguard).to receive(:tracking_enabled?).and_return(false)
+      expect { adapter.validate! }.not_to raise_error
+    end
+
     it "raises ConfigurationError when hub_api_key is missing" do
       Trackguard.configure { |c| c.hub_api_key = nil }
       expect { adapter.validate! }.to raise_error(Trackguard::ConfigurationError, /hub_api_key/)
