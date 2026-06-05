@@ -57,6 +57,8 @@ end
 
 In production this renders a `<script>` tag that loads the hub's client-side tracker. No engine mount, no migrations, no background jobs needed.
 
+> **Note:** Public signup at [trackguard.dev](https://trackguard.dev) is not yet open. Contact us if you'd like early access.
+
 ---
 
 ### Local adapter
