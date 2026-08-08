@@ -5,7 +5,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [Unreleased]
+## [0.30.0] — 2026-08-08
 
 ### Added
 - `disable_on_development` configuration option (defaults to `true`) — when enabled, all tracking is suppressed in the Rails development environment; `Trackguard.tracking_enabled?` is the single predicate checked by adapters, `trackguard_header_tags`, and the `PageTracker` concern
@@ -24,6 +24,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Stimulus `page_tracker_controller` is only registered via importmap when the local adapter is active; hub adapter installations no longer load the client-side tracker
 - Hub adapter fetches rules from `/api/backend/rules` (was `/api/rules`)
 - Hub adapter sends `X-Api-Key` header on rules requests alongside the existing Bearer token
+- `DetectSuspiciousVisitorsJob#whitelisted?` is now `protected` instead of `private`
 
 ### Fixed
 - `DetectSuspiciousVisitorsJob` whitelist check now falls back to an IP lookup when no `visitor_id` association exists on the `WhitelistedIp` record, and backfills the link on first match
