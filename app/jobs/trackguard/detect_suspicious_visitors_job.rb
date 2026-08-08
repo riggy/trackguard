@@ -183,6 +183,8 @@ module Trackguard
       )
     end
 
+    protected
+
     def whitelisted?(visitor)
       wl = visitor.whitelisted_ip
       unless wl
@@ -191,6 +193,8 @@ module Trackguard
       end
       wl&.active?
     end
+
+    private
 
     def name_from_ua(user_agent)
       BlockedUserAgent.matching_pattern(user_agent)
